@@ -317,6 +317,27 @@ const SingleUser = () => {
     detectIfMoreMutualConnection();
   }, []);
 
+  // if not on user page shut down the widget
+  useEffect(() => {
+    let mellonPageCheck = setInterval(async () => {
+      chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
+        if (data.url.split("/in/")[0] !== "https://www.linkedin.com") {
+          changeScreen({
+            first: true,
+            menu: false,
+            connections: false,
+            singleUser: false,
+            connectionList: false,
+            newKey: false,
+            potential: false,
+          });
+        }
+      });
+    }, 500);
+
+    return () => clearInterval(mellonPageCheck);
+  }, []);
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -364,7 +385,7 @@ const SingleUser = () => {
                 <>
                   <div className="mellon-key-or-not">
                     <img
-                      src={chrome.runtime.getURL("/assets/start-active.svg")}
+                      src={chrome.runtime.getURL("/assets/users-active.svg")}
                       alt="star"
                     />
                     <p>Potential Intro</p>

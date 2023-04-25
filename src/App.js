@@ -15,7 +15,7 @@ function App() {
 
   // loading necessary stuffs (fonts, pages checks...)
   useEffect(() => {
-    chrome.runtime.sendMessage({ from: "openFirstDegreeTab" });
+    // chrome.runtime.sendMessage({ from: "openFirstDegreeTab" });
 
     // append font
     const fontLink1 = document.createElement("link");

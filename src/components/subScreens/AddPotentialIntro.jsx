@@ -137,6 +137,11 @@ const AddPotentialIntro = () => {
         ?.textContent?.trim()
         .toLowerCase();
 
+      // profile photo
+      userDetailsObj.profilePhoto = document.querySelector(
+        "button.pv-top-card-profile-picture img"
+      )?.src;
+
       // is first degree
       let isOrNot =
         document.querySelector(".dist-value")?.innerText.trim() === "1st"
@@ -158,6 +163,7 @@ const AddPotentialIntro = () => {
       var urlencoded = new URLSearchParams();
       urlencoded.append("goal_custom_goal", keyRelationInfo.goal);
       urlencoded.append("linkedin_url_text", mellonUserDetails.linkedinUrl);
+      urlencoded.append("profile_photo_image", mellonUserDetails.profilePhoto);
       urlencoded.append("priority_option_priority", keyRelationInfo.prority);
       urlencoded.append("full_name_text", mellonUserDetails.fullName);
       urlencoded.append("notes_text", keyRelationInfo.notes);

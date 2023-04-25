@@ -34,6 +34,7 @@ const FirstScreen = () => {
 
   // check user before loading the screens
   const checkUserAndLoadScreens = async () => {
+    // check user auth
     chrome.runtime.sendMessage({ from: "auth_check" }, (data) => {
       // error
       if (data.user === false) {
@@ -48,6 +49,7 @@ const FirstScreen = () => {
         return;
       }
 
+      // if not met just show the default back page
       if (data.user === true) {
         // if authed
         changeScreen({

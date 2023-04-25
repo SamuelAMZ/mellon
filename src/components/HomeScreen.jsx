@@ -13,6 +13,8 @@ import AddNewKeyRelation from "./subScreens/AddNewKeyRelation";
 import AddPotentialIntro from "./subScreens/AddPotentialIntro";
 import MenuScreen from "./MenuScreen";
 import LoginScreen from "./auth/loginScreen";
+import Keys from "./subScreens/Keys";
+import Potentials from "./subScreens/Potentials";
 
 const HomeScreen = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
@@ -20,7 +22,6 @@ const HomeScreen = () => {
   useEffect(() => {
     // getActualLink
     chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
-      console.log(data);
       if (data.url.split("/in/")[0] === "https://www.linkedin.com/") {
         changeScreen({
           first: false,
@@ -69,6 +70,8 @@ const HomeScreen = () => {
           {screen.newKey && <AddNewKeyRelation />}
           {screen.potential && <AddPotentialIntro />}
           {screen.menu && <MenuScreen />}
+          {screen.keysList && <Keys />}
+          {screen.potentialsList && <Potentials />}
         </div>
       </div>
     </>
