@@ -27,11 +27,6 @@
         "./templates/daisyui_v2.51.5.css",
         "./templates/tailwind_v2.2.css"
       ]
-    },
-    {
-      "matches": ["https://mellon.app/*"],
-      "run_at": "document_end",
-      "js": ["./auth/checkSession.js"]
     }
   ],
   "web_accessible_resources": [

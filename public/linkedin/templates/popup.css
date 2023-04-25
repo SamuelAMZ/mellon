@@ -124,7 +124,7 @@ body {
 }
 
 /* form */
-form {
+.mellon-login-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -132,28 +132,28 @@ form {
   width: 100%;
   margin: 0;
 }
-form .mellon-form-group {
+.mellon-login-form .mellon-form-group {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
-form label {
+.mellon-login-form label {
   font-size: 15px;
 }
-form input {
+.mellon-login-form input {
   font-size: 15px;
   padding: 7px;
   border-radius: 7px;
   outline: none;
   border: 1px solid black;
 }
-form .loading {
+.mellon-login-form .loading {
   background-color: rgb(70, 70, 70);
   opacity: 0.5;
   color: black;
   pointer-events: none;
 }
-form .login-error {
+.mellon-login-form .mellon-login-error {
   display: none;
   flex-direction: column;
   width: 100%;

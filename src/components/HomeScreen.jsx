@@ -12,6 +12,7 @@ import SingleUser from "./subScreens/SingleUser";
 import AddNewKeyRelation from "./subScreens/AddNewKeyRelation";
 import AddPotentialIntro from "./subScreens/AddPotentialIntro";
 import MenuScreen from "./MenuScreen";
+import LoginScreen from "./auth/loginScreen";
 
 const HomeScreen = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
@@ -63,6 +64,7 @@ const HomeScreen = () => {
 
         <div className="mellon-container-connections">
           {screen.connectionList && <Connections />}
+          {screen.login && <LoginScreen />}
           {screen.singleUser && <SingleUser />}
           {screen.newKey && <AddNewKeyRelation />}
           {screen.potential && <AddPotentialIntro />}

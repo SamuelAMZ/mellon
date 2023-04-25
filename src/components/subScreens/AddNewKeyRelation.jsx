@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 
 // icons
 import { IoIosArrowBack } from "react-icons/io";
@@ -11,6 +11,7 @@ const AddNewKeyRelation = () => {
 
   const [keyRelationInfo, setKeyRelationInfo] = useState(null);
   const [addingNewKey, setAddingNewKey] = useState(false);
+  const [mellonUserGoals, setMellonUserGoals] = useState([]);
 
   const backToSingleUser = () => {
     changeScreen({
@@ -37,6 +38,47 @@ const AddNewKeyRelation = () => {
     return mellonTheName;
   };
 
+  // get user goals
+  const mellonGetGoals = async () => {
+    // get user token
+    chrome.storage.local.get("utoken", (data) => {
+      if (!data.utoken) {
+        return console.log("error getting user token");
+      }
+
+      // send get goals request
+      let myHeaders = new Headers();
+      myHeaders.append("Authorization", "Bearer " + data.utoken);
+
+      let requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      fetch("https://mellon.app/version-test/api/1.1/obj/goal", requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.response.count > 0) {
+            let mellonGoalsBrut = [];
+            result.response.results.forEach((elm) => {
+              mellonGoalsBrut.push({ name: elm.name_text, id: elm._id });
+            });
+
+            // set goals
+            setMellonUserGoals(mellonGoalsBrut);
+          }
+        })
+        .catch((error) => console.log("error", error));
+    });
+  };
+
+  useEffect(() => {
+    (async () => {
+      await mellonGetGoals();
+    })();
+  }, []);
+
   // handle ading new key
   const handleNewKeyRelation = async (e) => {
     e.preventDefault();
@@ -45,12 +87,21 @@ const AddNewKeyRelation = () => {
 
     // get user rest detail
     let userLinked = null;
+    let userToken = null;
     chrome.storage.local.get("uid", function (item) {
       if (item.uid) {
         userLinked = item.uid;
       }
       if (!item.uid) {
         userLinked = null;
+      }
+    });
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
       }
     });
     function delay(ms) {
@@ -97,35 +148,60 @@ const AddNewKeyRelation = () => {
     try {
       let mellonUserDetails = await grabUserDetails();
 
-      let newKeyData = { ...keyRelationInfo, ...mellonUserDetails };
+      // let newKeyData = { ...keyRelationInfo, ...mellonUserDetails };
 
-      var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      myHeaders.append(
-        "Authorization",
-        "Bearer 725b8d6584b071a02e1316945bf7743b"
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+      myHeaders.append("Authorization", "Bearer " + userToken);
+
+      var urlencoded = new URLSearchParams();
+      urlencoded.append(
+        "goals_list_custom_goal",
+        JSON.stringify([keyRelationInfo.goal])
       );
-
-      var raw = newKeyData;
+      urlencoded.append("is_key_relationship_boolean", "true");
+      urlencoded.append("isfirstdegree_boolean", "true");
+      urlencoded.append("linkedin_url_text", mellonUserDetails.linkedinUrl);
+      urlencoded.append(
+        "relationship_strength_option_relationship_strength",
+        keyRelationInfo.relationshipStrength
+      );
+      urlencoded.append("full_name_text", mellonUserDetails.fullName);
+      urlencoded.append("notes_text", keyRelationInfo.notes);
 
       var requestOptions = {
         method: "POST",
         headers: myHeaders,
-        body: JSON.stringify(raw),
+        body: urlencoded,
         redirect: "follow",
       };
 
-      fetch("http://localhost:4001/api/new-keyrelation", requestOptions)
-        .then((response) => response.text())
+      fetch(
+        "https://mellon.app/version-test/api/1.1/obj/connection",
+        requestOptions
+      )
+        .then((response) => response.json())
         .then((result) => {
           console.log(result);
+          if (result.status !== "success") {
+            let newKeyErrorBox = document.querySelector(
+              ".mellon-new-key-error"
+            );
+
+            newKeyErrorBox.style.display = "flex";
+            newKeyErrorBox.innerText = result.body?.message;
+
+            // stop laoding
+            setAddingNewKey(false);
+            return;
+          }
+
+          setAddingNewKey(false);
+
+          // redirect to the user page
+          backToSingleUser();
         })
         .catch((error) => console.log("error", error));
-
-      setAddingNewKey(false);
-
-      // redirect to the user page
-      backToSingleUser();
     } catch (error) {
       setAddingNewKey(false);
     }
@@ -143,6 +219,7 @@ const AddNewKeyRelation = () => {
         <p>Add {mellonGetUserName()} as Key relationship</p>
       </div>
       <form onSubmit={handleNewKeyRelation}>
+        <p className="mellon-new-key-error"></p>
         <div className="mellon-form-group">
           <label htmlFor="mellon-goals">Goals</label>
           <div className="mellon-select-container">
@@ -158,36 +235,17 @@ const AddNewKeyRelation = () => {
               <option disabled selected>
                 Select a goal
               </option>
-              <option value="1681302240545x441696144196894700">
-                Business Development
-              </option>
-              <option value="1681302240545x441696144196894700">
-                Fundraising
-              </option>
+              {mellonUserGoals.map((elm, idx) => {
+                return (
+                  <option key={idx} value={elm.id}>
+                    {elm.name}
+                  </option>
+                );
+              })}
             </select>
           </div>
         </div>
-        <div className="mellon-form-group">
-          <label htmlFor="mellon-goals">Professional Value</label>
-          <div className="mellon-select-container">
-            <select
-              className="mellon-select"
-              onChange={(e) => {
-                setKeyRelationInfo({
-                  ...keyRelationInfo,
-                  professionalValue: e.target.value,
-                });
-              }}
-            >
-              <option value="" selected disabled>
-                Select an option
-              </option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </div>
-        </div>
+
         <div className="mellon-form-group">
           <label htmlFor="mellon-goals">Relationship Strength</label>
           <div className="mellon-select-container">
@@ -203,9 +261,9 @@ const AddNewKeyRelation = () => {
               <option value="" selected disabled>
                 Select an option
               </option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
             </select>
           </div>
         </div>

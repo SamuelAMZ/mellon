@@ -8,7 +8,7 @@ let footer = document.querySelector(".clone-footer");
 let loginForm = document.querySelector("#login");
 let emailInput = document.querySelector("#email");
 let passwordInput = document.querySelector("#password");
-let loginErrorBox = document.querySelector(".login-error");
+let loginErrorBox = document.querySelector(".mellon-login-error");
 let loginBtn = document.querySelector("#login-btn");
 
 // login flow

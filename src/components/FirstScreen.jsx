@@ -32,20 +32,42 @@ const FirstScreen = () => {
     });
   }, []);
 
+  // check user before loading the screens
+  const checkUserAndLoadScreens = async () => {
+    chrome.runtime.sendMessage({ from: "auth_check" }, (data) => {
+      // error
+      if (data.user === false) {
+        changeScreen({
+          first: false,
+          login: true,
+          menu: false,
+          connections: true,
+          singleUser: false,
+          connectionList: false,
+        });
+        return;
+      }
+
+      if (data.user === true) {
+        // if authed
+        changeScreen({
+          first: false,
+          login: false,
+          menu: true,
+          connections: true,
+          singleUser: false,
+          connectionList: false,
+        });
+      }
+    });
+  };
+
   return (
     <>
       {screen.first && (
         <div
           class="mellon-ext-default-container"
-          onClick={() =>
-            changeScreen({
-              first: false,
-              menu: true,
-              connections: true,
-              singleUser: false,
-              connectionList: false,
-            })
-          }
+          onClick={() => checkUserAndLoadScreens()}
         >
           {/* logo */}
           <img

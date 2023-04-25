@@ -13,6 +13,7 @@ function App() {
   // react query
   const client = new QueryClient();
 
+  // loading necessary stuffs (fonts, pages checks...)
   useEffect(() => {
     chrome.runtime.sendMessage({ from: "openFirstDegreeTab" });
 

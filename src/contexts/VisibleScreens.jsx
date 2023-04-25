@@ -5,6 +5,7 @@ const VisibleScrensContext = createContext();
 export const VisibleScrensProvider = ({ children }) => {
   const [screen, setScreen] = useState({
     first: true,
+    login: false,
     menu: false,
     connections: false,
     singleUser: false,
