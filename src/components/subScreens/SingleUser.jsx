@@ -19,6 +19,10 @@ const SingleUser = () => {
   const [isFirstDegree, setIsFirstDegree] = useState(false);
   const [singleGoal, setSingleGoal] = useState("");
 
+  // mutual more
+  const [mellonZeroOrMore, setMellonZeroOrMore] = useState(false);
+  const [mellonMutualLink, setMellonMutualLink] = useState("");
+
   // get user first details
   let userLinked = null;
   let userToken = null;
@@ -41,6 +45,16 @@ const SingleUser = () => {
   function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
+  function waitForClass(className, callback) {
+    var intervalId = setInterval(function () {
+      var elements = document.querySelector(className);
+      if (elements && elements.offsetHeight > 0) {
+        clearInterval(intervalId);
+        callback();
+      }
+    }, 100); // check every 100 milliseconds
+  }
+
   const grabUserDetails = async () => {
     //   wait 1sec
     await delay(300);
@@ -83,7 +97,7 @@ const SingleUser = () => {
     setUserDetails(userDetailsObj);
   };
 
-  // update user details
+  // get key relations details
   const handleConnectionsList = async () => {
     await delay(200);
 
@@ -284,6 +298,25 @@ const SingleUser = () => {
     });
   }, []);
 
+  // more mutual connection or not
+  const detectIfMoreMutualConnection = () => {
+    // document.querySelector(".artdeco-card div.ph5.pb5 > a.app-aware-link").href
+
+    // detect the classname
+    waitForClass(".artdeco-card div.ph5.pb5 > a.app-aware-link", function () {
+      setMellonZeroOrMore(true);
+
+      // set mutual link
+      let mutuallLink = document.querySelector(
+        ".artdeco-card div.ph5.pb5 > a.app-aware-link"
+      ).href;
+      setMellonMutualLink(mutuallLink);
+    });
+  };
+  useEffect(() => {
+    detectIfMoreMutualConnection();
+  }, []);
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -475,7 +508,19 @@ const SingleUser = () => {
               <div className="mellon-body-detial-item">
                 <p>Mutual Connections</p>
                 <div className="mellon-ext-details-circles">
-                  <p>0</p>
+                  <p>
+                    {mellonZeroOrMore ? (
+                      <a
+                        onClick={() => {
+                          chrome.tabs.create({ url: mellonMutualLink });
+                        }}
+                      >
+                        More
+                      </a>
+                    ) : (
+                      "0"
+                    )}
+                  </p>
                 </div>
               </div>
               <div class="mellon-body-detial-item mellon-user-note">
@@ -576,13 +621,43 @@ const SingleUser = () => {
                 <div className="mellon-body-detial-item">
                   <p>Key Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
-                    <p>0</p>
+                    <p>
+                      {mellonZeroOrMore ? (
+                        <a
+                          onClick={() => {
+                            chrome.runtime.sendMessage({
+                              from: "openUserUrl",
+                              url: mellonMutualLink,
+                            });
+                          }}
+                        >
+                          More
+                        </a>
+                      ) : (
+                        "0"
+                      )}
+                    </p>
                   </div>
                 </div>
                 <div className="mellon-body-detial-item">
                   <p>Other Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
-                    <p>0</p>
+                    <p>
+                      {mellonZeroOrMore ? (
+                        <a
+                          onClick={() => {
+                            chrome.runtime.sendMessage({
+                              from: "openUserUrl",
+                              url: mellonMutualLink,
+                            });
+                          }}
+                        >
+                          More
+                        </a>
+                      ) : (
+                        "0"
+                      )}
+                    </p>
                   </div>
                 </div>
                 <div class="mellon-body-detial-item mellon-user-note">
@@ -652,7 +727,22 @@ const SingleUser = () => {
                 <div className="mellon-body-detial-item">
                   <p>Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
-                    <p>0</p>
+                    <p>
+                      {mellonZeroOrMore ? (
+                        <a
+                          onClick={() => {
+                            chrome.runtime.sendMessage({
+                              from: "openUserUrl",
+                              url: mellonMutualLink,
+                            });
+                          }}
+                        >
+                          More
+                        </a>
+                      ) : (
+                        "0"
+                      )}
+                    </p>
                   </div>
                 </div>
               </>
