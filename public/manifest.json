@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "name": "Mellon",
+  "description": "This is a Chrome extension for Mellon",
+  "action": {
+    "default_popup": "linkedin/templates/popup.html",
+    "default_title": "Mellon",
+    "default_icon": {
+      "16": "logo.png",
+      "32": "logo.png",
+      "48": "logo.png",
+      "128": "logo.png"
+    }
+  },
+  "permissions": ["tabs", "activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/*"],
+      "run_at": "document_end",
+      "js": ["./static/js/main.js"],
+      "css": [
+        "./templates/style.css",
+        "./templates/daisyui_v2.51.5.css",
+        "./templates/tailwind_v2.2.css"
+      ]
+    },
+    {
+      "matches": ["https://mellon.app/*"],
+      "run_at": "document_end",
+      "js": ["./auth/checkSession.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": ["https://www.linkedin.com/*"],
+      "resources": ["linkedin/templates/*", "assets/*", "static/*"]
+    }
+  ],
+  "host_permissions": ["https://www.linkedin.com/", "https://mellon.app/"]
+}
