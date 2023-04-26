@@ -237,7 +237,7 @@ const FirstScreen = () => {
   return (
     <>
       {/* first screen for key relations */}
-      {screen.first && mellonKeyData && mellonKeyData._id && (
+      {screen.first && mellonKeyData && mellonKeyData?._id && (
         <div
           class="mellon-ext-default-container"
           onClick={() => checkUserAndLoadScreens()}
@@ -331,7 +331,7 @@ const FirstScreen = () => {
       )}
 
       {/* first screen for potential relations */}
-      {screen.first && mellonPotentialData && mellonPotentialData._id && (
+      {screen.first && mellonPotentialData && mellonPotentialData?._id && (
         <div
           class="mellon-ext-default-container"
           onClick={() => checkUserAndLoadScreens()}
@@ -418,8 +418,8 @@ const FirstScreen = () => {
       {/* fallback */}
       {screen.first &&
         mellonKeyData &&
-        !mellonKeyData._id &&
-        !mellonPotentialData._id && (
+        !mellonKeyData?._id &&
+        !mellonPotentialData?._id && (
           <div
             class="mellon-ext-default-container"
             onClick={() => checkUserAndLoadScreens()}

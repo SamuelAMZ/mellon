@@ -36,6 +36,30 @@ const HomeScreen = () => {
     });
   }, []);
 
+  // check user before loading the screens
+  const checkUserAndLoadScreens = async () => {
+    // check user auth
+    chrome.runtime.sendMessage({ from: "auth_check" }, (data) => {
+      // error
+      if (data.user === false) {
+        changeScreen({
+          first: false,
+          login: true,
+          menu: false,
+          connections: true,
+          singleUser: false,
+          connectionList: false,
+        });
+        return;
+      }
+    });
+  };
+  useEffect(() => {
+    (async () => {
+      await checkUserAndLoadScreens();
+    })();
+  }, []);
+
   return (
     <>
       <div className="mellon-ext-single-user">
