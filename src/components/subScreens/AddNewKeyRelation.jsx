@@ -153,8 +153,6 @@ const AddNewKeyRelation = () => {
     try {
       let mellonUserDetails = await grabUserDetails();
 
-      // let newKeyData = { ...keyRelationInfo, ...mellonUserDetails };
-
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
       myHeaders.append("Authorization", "Bearer " + userToken);

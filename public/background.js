@@ -61,32 +61,79 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   // open first degree tab
   if (message.from === "openFirstDegreeTab") {
-    chrome.tabs.query(
-      {
-        url: "https://www.linkedin.com/search/results/people/?network=%5B%22S%22%5D",
-      },
-      function (tabs) {
-        if (tabs.length > 0) {
-          console.log("Tab already exists");
-        } else {
-          chrome.tabs.create(
-            {
-              url: "https://www.linkedin.com/search/results/people/?network=%5B%22S%22%5D",
-              active: false,
-            },
-            (tabs) => {
-              const tabId = tabs.id;
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
 
-              // Execute the content script on the current tab
-              chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                files: ["linkedin/scraping/firstDegree/index.js"],
-              });
-            }
-          );
+    let alreadyExist = false;
+    chrome.tabs.query({}, async (tabs) => {
+      // check if already scraped 1st degree of user
+      chrome.storage.local.get("alreadyFirsts", function (item) {
+        if (item.alreadyFirsts) {
+          alreadyExist = true;
+          return;
+        }
+      });
+
+      await delay(200);
+
+      tabs.forEach((elm) => {
+        if (
+          elm.url.includes(
+            "https://www.linkedin.com/search/results/people/?network=%5B%22F%22%5D"
+          )
+        ) {
+          alreadyExist = true;
+          return;
+        }
+      });
+
+      await delay(200);
+
+      if (!alreadyExist) {
+        chrome.tabs.create(
+          {
+            url: "https://www.linkedin.com/search/results/people/?network=%5B%22F%22%5D",
+            active: true,
+          },
+          (tabs) => {
+            const tabId = tabs.id;
+
+            // Execute the content script on the current tab
+            chrome.scripting.executeScript({
+              target: { tabId: tabId },
+              files: ["linkedin/scraping/firstDegree/index.js"],
+            });
+
+            //set already scrape first degree to true
+            chrome.storage.local.set({ alreadyFirsts: true }, function () {
+              console.log("setted 1st degrees already scrapped");
+            });
+          }
+        );
+      }
+    });
+  }
+
+  // close first degree tab once done
+  // closeFirstDegreeTab
+  if (message.from === "closeFirstDegreeTab") {
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    chrome.tabs.query({}, async (tabs) => {
+      for (let i = 0; i < tabs.length; i++) {
+        if (
+          tabs[i].url.includes(
+            "https://www.linkedin.com/search/results/people/?network=%5B%22F%22%5D"
+          )
+        ) {
+          chrome.tabs.remove(tabs[i].id);
+          await delay(200);
         }
       }
-    );
+    });
   }
 
   // open linkedin uer page

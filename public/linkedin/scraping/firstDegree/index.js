@@ -4,13 +4,33 @@ const scrapFirstDegrees = async () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  // show little alert box on the top
+  const mellonCreateBox = () => {
+    let mellonAppLinkedinBody = document.querySelector("body");
+    let mellonAlertBox = document.createElement("p");
+    mellonAlertBox.classList.add("mellon-alert-box");
+    mellonAlertBox.textContent =
+      "Please refrain from closing this tab while we load your first-degree connections. This is a one-time process, and we appreciate your patience. Thank you.";
+    mellonAppLinkedinBody.appendChild(mellonAlertBox);
+  };
+  mellonCreateBox();
+
   let userLinked = null;
+  let userToken = null;
   chrome.storage.local.get("uid", function (item) {
     if (item.uid) {
       userLinked = item.uid;
     }
     if (!item.uid) {
       userLinked = null;
+    }
+  });
+  chrome.storage.local.get("utoken", function (item) {
+    if (item.utoken) {
+      userToken = item.utoken;
+    }
+    if (!item.utoken) {
+      userToken = null;
     }
   });
 
@@ -62,32 +82,38 @@ const scrapFirstDegrees = async () => {
 
   // add to db
   const addToDb = async (dataBrut) => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "Authorization",
-      "Bearer 725b8d6584b071a02e1316945bf7743b"
-    );
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
 
-    var raw = {
-      isFirstDegree: true,
-      fullName: dataBrut.name ? dataBrut.name : "",
-      linkedinUrl: dataBrut.profileUrl ? dataBrut.profileUrl.split("?")[0] : "",
-      profilePhoto: dataBrut.image ? dataBrut.image : "",
-      userLinked: userLinked,
-    };
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("is_key_relationship_boolean", "false");
+    urlencoded.append("isfirstdegree_boolean", "true");
+    urlencoded.append(
+      "linkedin_url_text",
+      dataBrut.profileUrl ? dataBrut.profileUrl.split("?")[0] : ""
+    );
+    urlencoded.append(
+      "profile_photo_image",
+      dataBrut.image ? dataBrut.image : ""
+    );
+    urlencoded.append("full_name_text", dataBrut.name ? dataBrut.name : "");
 
     var requestOptions = {
       method: "POST",
       headers: myHeaders,
-      body: JSON.stringify(raw),
+      body: urlencoded,
       redirect: "follow",
     };
 
-    fetch("http://localhost:4001/api/new-connection", requestOptions)
-      .then((response) => response.text())
-      .then((result) => console.log(result))
-      .catch((error) => console.log("error", error));
+    fetch(
+      "https://mellon.app/version-test/api/1.1/obj/connection",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+      });
   };
 
   const paginateAndGetPeople = async (pagesNum) => {
@@ -147,7 +173,10 @@ const scrapFirstDegrees = async () => {
   await delay(1000);
 
   const numberOfPage = getNumberOfPage();
-  paginateAndGetPeople(numberOfPage);
+  await paginateAndGetPeople(numberOfPage);
+
+  // once done close the page
+  chrome.runtime.sendMessage({ from: "closeFirstDegreeTab" });
 };
 
 window.addEventListener("load", scrapFirstDegrees);
