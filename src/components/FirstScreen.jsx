@@ -15,23 +15,6 @@ const FirstScreen = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [isFirstDegree, setIsFirstDegree] = useState(false);
 
-  useEffect(() => {
-    // getActualLink
-    chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
-      if (data.url.split("/in/")[0] === "https://www.linkedin.com") {
-        changeScreen({
-          first: false,
-          menu: false,
-          connections: true,
-          singleUser: true,
-          connectionList: false,
-          newKey: false,
-          potential: false,
-        });
-      }
-    });
-  }, []);
-
   // check user before loading the screens
   const checkUserAndLoadScreens = async () => {
     // check user auth
@@ -233,6 +216,23 @@ const FirstScreen = () => {
     refetchOnWindowFocus: false,
     enabled: true,
   });
+
+  useEffect(() => {
+    // getActualLink
+    chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
+      if (data.url.split("/in/")[0] === "https://www.linkedin.com") {
+        changeScreen({
+          first: false,
+          menu: false,
+          connections: true,
+          singleUser: true,
+          connectionList: false,
+          newKey: false,
+          potential: false,
+        });
+      }
+    });
+  }, [mellonKeyData, mellonPotentialData]);
 
   return (
     <>
