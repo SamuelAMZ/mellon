@@ -260,21 +260,15 @@ const FirstScreen = () => {
             {new Array(
               (() => {
                 if (
-                  mellonKeyData?.relationship_strength_option_relationship_strength ===
-                  "Low"
+                  mellonKeyData?.["Relationship Strength"] === "Low" ||
+                  !mellonKeyData?.["Relationship Strength"]
                 ) {
                   return 1;
                 }
-                if (
-                  mellonKeyData?.relationship_strength_option_relationship_strength ===
-                  "Medium"
-                ) {
+                if (mellonKeyData?.["Relationship Strength"] === "Medium") {
                   return 2;
                 }
-                if (
-                  mellonKeyData?.relationship_strength_option_relationship_strength ===
-                  "High"
-                ) {
+                if (mellonKeyData?.["Relationship Strength"] === "High") {
                   return 3;
                 }
               })()
@@ -292,21 +286,15 @@ const FirstScreen = () => {
               3 -
                 (() => {
                   if (
-                    mellonKeyData?.relationship_strength_option_relationship_strength ===
-                    "Low"
+                    mellonKeyData?.["Relationship Strength"] === "Low" ||
+                    !mellonKeyData?.["Relationship Strength"]
                   ) {
                     return 1;
                   }
-                  if (
-                    mellonKeyData?.relationship_strength_option_relationship_strength ===
-                    "Medium"
-                  ) {
+                  if (mellonKeyData?.["Relationship Strength"] === "Medium") {
                     return 2;
                   }
-                  if (
-                    mellonKeyData?.relationship_strength_option_relationship_strength ===
-                    "High"
-                  ) {
+                  if (mellonKeyData?.["Relationship Strength"] === "High") {
                     return 3;
                   }
                 })()
@@ -353,15 +341,16 @@ const FirstScreen = () => {
           <div class="mellon-ext-first-circles">
             {new Array(
               (() => {
-                if (mellonPotentialData?.priority_option_priority === "Low") {
+                if (
+                  mellonPotentialData?.Priority === "Low" ||
+                  !mellonPotentialData?.Priority
+                ) {
                   return 1;
                 }
-                if (
-                  mellonPotentialData?.priority_option_priority === "Medium"
-                ) {
+                if (mellonPotentialData?.Priority === "Medium") {
                   return 2;
                 }
-                if (mellonPotentialData?.priority_option_priority === "High") {
+                if (mellonPotentialData?.Priority === "High") {
                   return 3;
                 }
               })()
@@ -378,17 +367,16 @@ const FirstScreen = () => {
             {new Array(
               3 -
                 (() => {
-                  if (mellonPotentialData?.priority_option_priority === "Low") {
+                  if (
+                    mellonPotentialData?.Priority === "Low" ||
+                    !mellonPotentialData?.Priority
+                  ) {
                     return 1;
                   }
-                  if (
-                    mellonPotentialData?.priority_option_priority === "Medium"
-                  ) {
+                  if (mellonPotentialData?.Priority === "Medium") {
                     return 2;
                   }
-                  if (
-                    mellonPotentialData?.priority_option_priority === "High"
-                  ) {
+                  if (mellonPotentialData?.Priority === "High") {
                     return 3;
                   }
                 })()

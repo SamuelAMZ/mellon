@@ -200,14 +200,12 @@ const SingleUser = () => {
           redirect: "follow",
         };
 
-        console.log(mellonPotentialData);
-
         let goalIdToSend = "";
-        if (mellonKeyData.goals_list_custom_goal) {
-          goalIdToSend = mellonKeyData.goals_list_custom_goal;
+        if (mellonKeyData.Goals) {
+          goalIdToSend = mellonKeyData.Goals;
         }
-        if (mellonPotentialData.goal_custom_goal) {
-          goalIdToSend = mellonPotentialData.goal_custom_goal;
+        if (mellonPotentialData.Goal) {
+          goalIdToSend = mellonPotentialData.Goal;
         }
 
         const req = await fetch(
@@ -219,9 +217,7 @@ const SingleUser = () => {
 
         let result = await req.json();
 
-        console.log(result?.response?.results[0], "lorem");
-
-        setSingleGoal(result?.response?.results[0].name_text);
+        setSingleGoal(result?.response?.results[0].Name);
       })();
     }
   }, [mellonKeyData, mellonPotentialData]);
@@ -454,21 +450,17 @@ const SingleUser = () => {
                   {new Array(
                     (() => {
                       if (
-                        mellonKeyData?.relationship_strength_option_relationship_strength ===
-                        "Low"
+                        mellonKeyData?.["Relationship Strength"] === "Low" ||
+                        !mellonKeyData?.["Relationship Strength"]
                       ) {
                         return 1;
                       }
                       if (
-                        mellonKeyData?.relationship_strength_option_relationship_strength ===
-                        "Medium"
+                        mellonKeyData?.["Relationship Strength"] === "Medium"
                       ) {
                         return 2;
                       }
-                      if (
-                        mellonKeyData?.relationship_strength_option_relationship_strength ===
-                        "High"
-                      ) {
+                      if (mellonKeyData?.["Relationship Strength"] === "High") {
                         return 3;
                       }
                     })()
@@ -486,20 +478,18 @@ const SingleUser = () => {
                     3 -
                       (() => {
                         if (
-                          mellonKeyData?.relationship_strength_option_relationship_strength ===
-                          "Low"
+                          mellonKeyData?.["Relationship Strength"] === "Low" ||
+                          !mellonKeyData?.["Relationship Strength"]
                         ) {
                           return 1;
                         }
                         if (
-                          mellonKeyData?.relationship_strength_option_relationship_strength ===
-                          "Medium"
+                          mellonKeyData?.["Relationship Strength"] === "Medium"
                         ) {
                           return 2;
                         }
                         if (
-                          mellonKeyData?.relationship_strength_option_relationship_strength ===
-                          "High"
+                          mellonKeyData?.["Relationship Strength"] === "High"
                         ) {
                           return 3;
                         }
@@ -548,7 +538,7 @@ const SingleUser = () => {
                 <p>Notes</p>
                 <textarea
                   class="textarea textarea-bordered"
-                  value={mellonKeyData?.notes_text}
+                  value={mellonKeyData?.Notes}
                   rows="2"
                   placeholder="Nothing yet"
                   readOnly
@@ -575,21 +565,15 @@ const SingleUser = () => {
                     {new Array(
                       (() => {
                         if (
-                          mellonPotentialData?.priority_option_priority ===
-                          "Low"
+                          mellonPotentialData?.Priority === "Low" ||
+                          !mellonPotentialData?.Priority
                         ) {
                           return 1;
                         }
-                        if (
-                          mellonPotentialData?.priority_option_priority ===
-                          "Medium"
-                        ) {
+                        if (mellonPotentialData?.Priority === "Medium") {
                           return 2;
                         }
-                        if (
-                          mellonPotentialData?.priority_option_priority ===
-                          "High"
-                        ) {
+                        if (mellonPotentialData?.Priority === "High") {
                           return 3;
                         }
                       })()
@@ -609,21 +593,15 @@ const SingleUser = () => {
                       3 -
                         (() => {
                           if (
-                            mellonPotentialData?.priority_option_priority ===
-                            "Low"
+                            mellonPotentialData?.Priority === "Low" ||
+                            !mellonPotentialData?.Priority
                           ) {
                             return 1;
                           }
-                          if (
-                            mellonPotentialData?.priority_option_priority ===
-                            "Medium"
-                          ) {
+                          if (mellonPotentialData?.Priority === "Medium") {
                             return 2;
                           }
-                          if (
-                            mellonPotentialData?.priority_option_priority ===
-                            "High"
-                          ) {
+                          if (mellonPotentialData?.Priority === "High") {
                             return 3;
                           }
                         })()
@@ -685,7 +663,7 @@ const SingleUser = () => {
                   <p>Notes</p>
                   <textarea
                     class="textarea textarea-bordered"
-                    value={mellonPotentialData?.notes_text}
+                    value={mellonPotentialData?.Notes}
                     rows="2"
                     placeholder="Nothing yet"
                     readOnly

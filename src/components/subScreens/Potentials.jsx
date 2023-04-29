@@ -120,12 +120,12 @@ const Potentials = () => {
               <div
                 key={idx}
                 className="mellon-connection-single-item"
-                onClick={() => redirectOnClick(elm?.linkedin_url_text)}
+                onClick={() => redirectOnClick(elm?.["Linkedin URL"])}
               >
                 <div className="mellon-single-details">
                   {/* profile */}
-                  {elm?.profile_photo_image ? (
-                    <img src={elm?.profile_photo_image} alt="profile-icon" />
+                  {elm?.["Profile Photo"] ? (
+                    <img src={elm?.["Profile Photo"]} alt="profile-icon" />
                   ) : (
                     <CgProfile className="mellon-single-fb" />
                   )}
@@ -133,7 +133,7 @@ const Potentials = () => {
 
                 {/* name */}
                 <div className="mellon-single-name">
-                  <p>{elm?.full_name_text}</p>
+                  <p>{elm?.["Full Name"]}</p>
                 </div>
 
                 <div className="mellon-single-icons">
