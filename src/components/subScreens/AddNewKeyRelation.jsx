@@ -62,7 +62,7 @@ const AddNewKeyRelation = () => {
           if (result.response.count > 0) {
             let mellonGoalsBrut = [];
             result.response.results.forEach((elm) => {
-              mellonGoalsBrut.push({ name: elm.name_text, id: elm._id });
+              mellonGoalsBrut.push({ name: elm.Name, id: elm._id });
             });
 
             // set goals
@@ -158,20 +158,17 @@ const AddNewKeyRelation = () => {
       myHeaders.append("Authorization", "Bearer " + userToken);
 
       var urlencoded = new URLSearchParams();
+      urlencoded.append("Goals", JSON.stringify([keyRelationInfo.goal]));
+      urlencoded.append("Is Key Relationship", "true");
+      urlencoded.append("is First Degree", "true");
+      urlencoded.append("Linkedin URL", mellonUserDetails.linkedinUrl);
+      urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
       urlencoded.append(
-        "goals_list_custom_goal",
-        JSON.stringify([keyRelationInfo.goal])
-      );
-      urlencoded.append("is_key_relationship_boolean", "true");
-      urlencoded.append("isfirstdegree_boolean", "true");
-      urlencoded.append("linkedin_url_text", mellonUserDetails.linkedinUrl);
-      urlencoded.append("profile_photo_image", mellonUserDetails.profilePhoto);
-      urlencoded.append(
-        "relationship_strength_option_relationship_strength",
+        "Relationship Strength",
         keyRelationInfo.relationshipStrength
       );
-      urlencoded.append("full_name_text", mellonUserDetails.fullName);
-      urlencoded.append("notes_text", keyRelationInfo.notes);
+      urlencoded.append("Full Name", mellonUserDetails.fullName);
+      urlencoded.append("Notes", keyRelationInfo.notes);
 
       var requestOptions = {
         method: "POST",

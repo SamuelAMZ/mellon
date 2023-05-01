@@ -80,40 +80,139 @@ const scrapFirstDegrees = async () => {
     return numberOfPage;
   };
 
+  // normalize linkedin urls
+  const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
+    let url = linkedinUrlBrut;
+
+    // Remove the last slash character
+    if (url.endsWith("/")) {
+      url = url.slice(0, -1);
+    }
+
+    return url;
+  };
+
+  // check before adding to db (prevent duplicates)
+  const mellonPreventDuplicates = async (linkedinUrl, apiEndpoint) => {
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    let requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    let response = await fetch(
+      `${apiEndpoint}?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+        linkedinUrl
+      )} } ]`,
+      requestOptions
+    );
+    let result = await response.json();
+
+    if (result.response.count > 0) {
+      // return true so we cam use a PUT request instead of a POST
+      return {
+        method: "PUT",
+        url: `${apiEndpoint}/${result.response.results[0]._id}`,
+        data: result.response.results[0],
+      };
+    }
+    return { method: "POST", url: apiEndpoint, data: {} };
+  };
+
+  // add the current record that are present in the db, so the PUT request will not override them
+  const addCurrentValues = (data, valuesToAdd, urlencoded) => {
+    if (!data._id) {
+      return;
+    }
+
+    // loop inside the data
+    // if field is not egal to the defaults
+    // the update ones
+    // add the rest to an array
+    // filter the array
+    // append
+
+    let fieldsToAdd = [];
+
+    const check = (field) => {
+      for (let i = 0; i < valuesToAdd.length; i++) {
+        if (field === valuesToAdd[i]) {
+          return false;
+        }
+      }
+
+      if (
+        field === "Modified Date" ||
+        field === "Created Date" ||
+        field === "Created By" ||
+        field === "_id"
+      ) {
+        return false;
+      }
+
+      return true;
+    };
+
+    for (let prop in data) {
+      if (check(prop)) {
+        fieldsToAdd.push({ field: prop, value: data[prop] });
+      }
+    }
+
+    for (let i = 0; i < fieldsToAdd.length; i++) {
+      urlencoded.append(fieldsToAdd[i].field, fieldsToAdd[i].value);
+    }
+  };
+
   // add to db
   const addToDb = async (dataBrut) => {
+    let linkedinUrl = dataBrut.profileUrl
+      ? mellonNormalizeLinkedinUrl(dataBrut.profileUrl.split("?")[0])
+      : "";
+
+    // check if the user already exist for the current user
+    let updateRecord = await mellonPreventDuplicates(
+      linkedinUrl,
+      "https://mellon.app/version-test/api/1.1/obj/connection"
+    );
+
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
     myHeaders.append("Authorization", "Bearer " + userToken);
 
-    var urlencoded = new URLSearchParams();
-    urlencoded.append("is_key_relationship_boolean", "false");
-    urlencoded.append("isfirstdegree_boolean", "true");
-    urlencoded.append(
-      "linkedin_url_text",
-      dataBrut.profileUrl ? dataBrut.profileUrl.split("?")[0] : ""
-    );
-    urlencoded.append(
-      "profile_photo_image",
-      dataBrut.image ? dataBrut.image : ""
-    );
-    urlencoded.append("full_name_text", dataBrut.name ? dataBrut.name : "");
+    let urlencoded = new URLSearchParams();
 
-    var requestOptions = {
-      method: "POST",
+    // new values to add
+    let valuesToAdd = [
+      "Is Key Relationship",
+      "is First Degree",
+      "Linkedin URL",
+      "Profile Photo",
+      "Full Name",
+    ];
+
+    // add the current existant records
+    addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
+
+    // add the updated new values
+    urlencoded.append("Is Key Relationship", "false");
+    urlencoded.append("is First Degree", "true");
+    urlencoded.append("Linkedin URL", linkedinUrl);
+    urlencoded.append("Profile Photo", dataBrut.image ? dataBrut.image : "");
+    urlencoded.append("Full Name", dataBrut.name ? dataBrut.name : "");
+
+    let requestOptions = {
+      method: updateRecord.method,
       headers: myHeaders,
       body: urlencoded,
       redirect: "follow",
     };
 
-    fetch(
-      "https://mellon.app/version-test/api/1.1/obj/connection",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-      });
+    let response = await fetch(updateRecord.url, requestOptions);
+    let result = response.json();
   };
 
   const paginateAndGetPeople = async (pagesNum) => {

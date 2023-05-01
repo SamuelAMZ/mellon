@@ -63,7 +63,7 @@ const AddPotentialIntro = () => {
           if (result.response.count > 0) {
             let mellonGoalsBrut = [];
             result.response.results.forEach((elm) => {
-              mellonGoalsBrut.push({ name: elm.name_text, id: elm._id });
+              mellonGoalsBrut.push({ name: elm.Name, id: elm._id });
             });
 
             // set goals
@@ -161,12 +161,12 @@ const AddPotentialIntro = () => {
       myHeaders.append("Authorization", "Bearer " + userToken);
 
       var urlencoded = new URLSearchParams();
-      urlencoded.append("goal_custom_goal", keyRelationInfo.goal);
-      urlencoded.append("linkedin_url_text", mellonUserDetails.linkedinUrl);
-      urlencoded.append("profile_photo_image", mellonUserDetails.profilePhoto);
-      urlencoded.append("priority_option_priority", keyRelationInfo.prority);
-      urlencoded.append("full_name_text", mellonUserDetails.fullName);
-      urlencoded.append("notes_text", keyRelationInfo.notes);
+      urlencoded.append("Goal", keyRelationInfo.goal);
+      urlencoded.append("Linkedin URL", mellonUserDetails.linkedinUrl);
+      urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
+      urlencoded.append("Priority", keyRelationInfo.prority);
+      urlencoded.append("Full Name", mellonUserDetails.fullName);
+      urlencoded.append("Notes", keyRelationInfo.notes);
 
       var requestOptions = {
         method: "POST",
