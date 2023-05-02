@@ -80,7 +80,98 @@ const AddPotentialIntro = () => {
     })();
   }, []);
 
-  // handle ading new key
+  // normalize linkedin urls
+  const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
+    let url = linkedinUrlBrut.trim();
+
+    // Remove the last slash character
+    if (url.endsWith("/")) {
+      url = url.slice(0, -1);
+    }
+
+    return url;
+  };
+
+  // check before adding to db (prevent duplicates)
+  const mellonPreventDuplicates = async (
+    linkedinUrl,
+    apiEndpoint,
+    userToken
+  ) => {
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    let requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    let response = await fetch(
+      `${apiEndpoint}?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+        linkedinUrl
+      )} } ]`,
+      requestOptions
+    );
+    let result = await response.json();
+
+    if (result.response.count > 0) {
+      // return true so we cam use a PUT request instead of a POST
+      return {
+        method: "PUT",
+        url: `${apiEndpoint}/${result.response.results[0]._id}`,
+        data: result.response.results[0],
+      };
+    }
+    return { method: "POST", url: apiEndpoint, data: {} };
+  };
+
+  // add the current record that are present in the db, so the PUT request will not override them
+  const addCurrentValues = (data, valuesToAdd, urlencoded) => {
+    if (!data._id) {
+      return;
+    }
+
+    // loop inside the data
+    // if field is not egal to the defaults
+    // the update ones
+    // add the rest to an array
+    // filter the array
+    // append
+
+    let fieldsToAdd = [];
+
+    const check = (field) => {
+      for (let i = 0; i < valuesToAdd.length; i++) {
+        if (field === valuesToAdd[i]) {
+          return false;
+        }
+      }
+
+      if (
+        field === "Modified Date" ||
+        field === "Created Date" ||
+        field === "Created By" ||
+        field === "_id"
+      ) {
+        return false;
+      }
+
+      return true;
+    };
+
+    for (let prop in data) {
+      if (check(prop)) {
+        fieldsToAdd.push({ field: prop, value: data[prop] });
+      }
+    }
+
+    for (let i = 0; i < fieldsToAdd.length; i++) {
+      urlencoded.append(fieldsToAdd[i].field, fieldsToAdd[i].value);
+    }
+  };
+
+  // handle ading new potential
   const handleNewPotentialIntro = async (e) => {
     e.preventDefault();
 
@@ -128,14 +219,12 @@ const AddPotentialIntro = () => {
       //   get full name
       userDetailsObj.fullName = document
         .querySelector(".pv-text-details__left-panel h1")
-        ?.textContent?.trim()
-        .toLowerCase();
+        ?.textContent?.trim();
 
       // actual role
       userDetailsObj.actualRole = document
         .querySelector(".pv-text-details__left-panel .text-body-medium")
-        ?.textContent?.trim()
-        .toLowerCase();
+        ?.textContent?.trim();
 
       // profile photo
       userDetailsObj.profilePhoto = document.querySelector(
@@ -154,53 +243,73 @@ const AddPotentialIntro = () => {
     try {
       let mellonUserDetails = await grabUserDetails();
 
-      // let newKeyData = { ...keyRelationInfo, ...mellonUserDetails };
+      // normalize limkedin url
+      let linkedinUrl = mellonUserDetails.linkedinUrl
+        ? mellonNormalizeLinkedinUrl(mellonUserDetails.linkedinUrl)
+        : "";
+
+      // check if the user already exist for the current user
+      let updateRecord = await mellonPreventDuplicates(
+        linkedinUrl,
+        "https://mellon.app/version-test/api/1.1/obj/potentialIntro",
+        userToken
+      );
+
+      console.log("3");
 
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
       myHeaders.append("Authorization", "Bearer " + userToken);
 
       var urlencoded = new URLSearchParams();
+
+      // new values to add
+      let valuesToAdd = [
+        "Goal",
+        "Linkedin URL",
+        "Profile Photo",
+        "Priority",
+        "Full Name",
+        "Notes",
+      ];
+
+      // add the current existant records
+      addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
+
       urlencoded.append("Goal", keyRelationInfo.goal);
-      urlencoded.append("Linkedin URL", mellonUserDetails.linkedinUrl);
+      urlencoded.append("Linkedin URL", linkedinUrl);
       urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
       urlencoded.append("Priority", keyRelationInfo.prority);
       urlencoded.append("Full Name", mellonUserDetails.fullName);
       urlencoded.append("Notes", keyRelationInfo.notes);
 
       var requestOptions = {
-        method: "POST",
+        method: updateRecord.method,
         headers: myHeaders,
         body: urlencoded,
         redirect: "follow",
       };
 
-      fetch(
-        "https://mellon.app/version-test/api/1.1/obj/potentialIntro",
-        requestOptions
-      )
-        .then((response) => response.json())
-        .then((result) => {
-          console.log(result);
-          if (result.status !== "success") {
-            let newKeyErrorBox = document.querySelector(
-              ".mellon-new-key-error"
-            );
+      const response = await fetch(updateRecord.url, requestOptions);
 
-            newKeyErrorBox.style.display = "flex";
-            newKeyErrorBox.innerText = result.body?.message;
+      if (response.status >= 200 && response.status < 400) {
+        setAddingNewKey(false);
 
-            // stop laoding
-            setAddingNewKey(false);
-            return;
-          }
+        // redirect to the user page
+        backToSingleUser();
+        return;
+      }
 
-          setAddingNewKey(false);
+      if (result.status !== "success") {
+        let newKeyErrorBox = document.querySelector(".mellon-new-key-error");
 
-          // redirect to the user page
-          backToSingleUser();
-        })
-        .catch((error) => console.log("error", error));
+        newKeyErrorBox.style.display = "flex";
+        newKeyErrorBox.innerText = result.body?.message;
+
+        // stop laoding
+        setAddingNewKey(false);
+        return;
+      }
     } catch (error) {
       setAddingNewKey(false);
     }

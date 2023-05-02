@@ -127,6 +127,22 @@ const FirstScreen = () => {
     return () => clearInterval(mellonUserCheck);
   }, []);
 
+  // normalize linkedin urls
+  const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
+    if (!linkedinUrlBrut) {
+      return;
+    }
+
+    let url = linkedinUrlBrut.trim();
+
+    // Remove the last slash character
+    if (url.endsWith("/")) {
+      url = url.slice(0, -1);
+    }
+
+    return url;
+  };
+
   // get key relations details
   const handleConnectionsList = async () => {
     await delay(200);
@@ -141,16 +157,16 @@ const FirstScreen = () => {
         redirect: "follow",
       };
 
+      let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/connection?constraints=[ { "key": "linkedin_url_text", "constraint_type": "equals", "value": ${JSON.stringify(
-          userDetails?.url
-        )} } ]`,
+        `https://mellon.app/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+          linkedinUrl
+        )} }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "true" } ]`,
         requestOptions
       );
 
       let result = await req.json();
-
-      console.log(result?.response?.results[0], "res");
 
       if (result?.response?.results.length > 0) {
         return result?.response?.results[0];
@@ -168,7 +184,7 @@ const FirstScreen = () => {
     isLoading: mellonKeyLoading,
     refetch: getPaginate,
   } = useQuery(["key-list", userDetails?.fullName], handleConnectionsList, {
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     enabled: true,
   });
 
@@ -186,16 +202,16 @@ const FirstScreen = () => {
         redirect: "follow",
       };
 
+      let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "linkedin_url_text", "constraint_type": "equals", "value": ${JSON.stringify(
-          userDetails?.url
+        `https://mellon.app/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+          linkedinUrl
         )} } ]`,
         requestOptions
       );
 
       let result = await req.json();
-
-      console.log(result?.response?.results[0], "res");
 
       if (result?.response?.results.length > 0) {
         return result?.response?.results[0];
@@ -213,7 +229,7 @@ const FirstScreen = () => {
     isLoading: mellonPotentialLoading,
     refetch: getPotentialPaginate,
   } = useQuery(["potential-list", userDetails?.fullName], handlePotentialList, {
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     enabled: true,
   });
 

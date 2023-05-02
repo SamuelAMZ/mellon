@@ -74,14 +74,12 @@ const SingleUser = () => {
     //   get full name
     userDetailsObj.fullName = document
       .querySelector(".pv-text-details__left-panel h1")
-      ?.textContent?.trim()
-      .toLowerCase();
+      ?.textContent?.trim();
 
     // actual role
     userDetailsObj.actualRole = document
       .querySelector(".pv-text-details__left-panel .text-body-medium")
-      ?.textContent?.trim()
-      .toLowerCase();
+      ?.textContent?.trim();
 
     // is first degree
     let isOrNot =
@@ -95,6 +93,22 @@ const SingleUser = () => {
 
     // set user details
     setUserDetails(userDetailsObj);
+  };
+
+  // normalize linkedin urls
+  const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
+    if (!linkedinUrlBrut) {
+      return;
+    }
+
+    let url = linkedinUrlBrut.trim();
+
+    // Remove the last slash character
+    if (url.endsWith("/")) {
+      url = url.slice(0, -1);
+    }
+
+    return url;
   };
 
   // get key relations details
@@ -111,10 +125,12 @@ const SingleUser = () => {
         redirect: "follow",
       };
 
+      let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/connection?constraints=[ { "key": "linkedin_url_text", "constraint_type": "equals", "value": ${JSON.stringify(
-          userDetails?.url
-        )} } ]`,
+        `https://mellon.app/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+          linkedinUrl
+        )} }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "true" } ]`,
         requestOptions
       );
 
@@ -156,9 +172,11 @@ const SingleUser = () => {
         redirect: "follow",
       };
 
+      let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "linkedin_url_text", "constraint_type": "equals", "value": ${JSON.stringify(
-          userDetails?.url
+        `https://mellon.app/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+          linkedinUrl
         )} } ]`,
         requestOptions
       );
@@ -451,7 +469,8 @@ const SingleUser = () => {
                     (() => {
                       if (
                         mellonKeyData?.["Relationship Strength"] === "Low" ||
-                        !mellonKeyData?.["Relationship Strength"]
+                        !mellonKeyData?.["Relationship Strength"] ||
+                        mellonKeyData?.["Relationship Strength"] === "N/A"
                       ) {
                         return 1;
                       }
@@ -479,7 +498,8 @@ const SingleUser = () => {
                       (() => {
                         if (
                           mellonKeyData?.["Relationship Strength"] === "Low" ||
-                          !mellonKeyData?.["Relationship Strength"]
+                          !mellonKeyData?.["Relationship Strength"] ||
+                          mellonKeyData?.["Relationship Strength"] === "N/A"
                         ) {
                           return 1;
                         }
