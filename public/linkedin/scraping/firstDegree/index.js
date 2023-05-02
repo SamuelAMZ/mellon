@@ -192,6 +192,7 @@ const scrapFirstDegrees = async () => {
       "Linkedin URL",
       "Profile Photo",
       "Full Name",
+      "Linkedin Description",
     ];
 
     // add the current existant records
@@ -203,6 +204,10 @@ const scrapFirstDegrees = async () => {
     urlencoded.append("Linkedin URL", linkedinUrl);
     urlencoded.append("Profile Photo", dataBrut.image ? dataBrut.image : "");
     urlencoded.append("Full Name", dataBrut.name ? dataBrut.name : "");
+    urlencoded.append(
+      "Linkedin Description",
+      dataBrut.role ? dataBrut.role : "..."
+    );
 
     let requestOptions = {
       method: updateRecord.method,

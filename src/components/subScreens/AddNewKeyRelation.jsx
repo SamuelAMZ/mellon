@@ -271,6 +271,7 @@ const AddNewKeyRelation = () => {
         "Relationship Strength",
         "Full Name",
         "Notes",
+        "Linkedin Description",
       ];
 
       // add the current existant records
@@ -287,6 +288,7 @@ const AddNewKeyRelation = () => {
       );
       urlencoded.append("Full Name", mellonUserDetails.fullName);
       urlencoded.append("Notes", keyRelationInfo.notes);
+      urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
       var requestOptions = {
         method: updateRecord.method,
@@ -321,6 +323,48 @@ const AddNewKeyRelation = () => {
 
     setAddingNewKey(false);
   };
+
+  // useEffect(() => {
+  //   function delay(ms) {
+  //     return new Promise((resolve) => setTimeout(resolve, ms));
+  //   }
+  //   const grabUserDetails = async () => {
+  //     //   wait 1sec
+  //     await delay(100);
+
+  //     //   start scraping
+  //     const userDetailsObj = {};
+
+  //     //   get full name
+  //     userDetailsObj.fullName = document
+  //       .querySelector(".pv-text-details__left-panel h1")
+  //       ?.textContent?.trim();
+
+  //     // actual role
+  //     userDetailsObj.actualRole = document
+  //       .querySelector(".pv-text-details__left-panel .text-body-medium")
+  //       ?.textContent?.trim();
+
+  //     // profile photo
+  //     userDetailsObj.profilePhoto = document.querySelector(
+  //       "button.pv-top-card-profile-picture img"
+  //     )?.src;
+
+  //     // is first degree
+  //     let isOrNot =
+  //       document.querySelector(".dist-value")?.innerText.trim() === "1st"
+  //         ? true
+  //         : false;
+  //     userDetailsObj.isFirstDegree = isOrNot;
+
+  //     console.log(userDetailsObj);
+  //   };
+
+  //   (async () => {
+  //     await delay(3000);
+  //     await grabUserDetails();
+  //   })();
+  // }, []);
 
   return (
     <div className="mellon-add-new-key-relation-wrapper">

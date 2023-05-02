@@ -255,8 +255,6 @@ const AddPotentialIntro = () => {
         userToken
       );
 
-      console.log("3");
-
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
       myHeaders.append("Authorization", "Bearer " + userToken);
@@ -271,7 +269,10 @@ const AddPotentialIntro = () => {
         "Priority",
         "Full Name",
         "Notes",
+        "Linkedin Description",
       ];
+
+      console.log(mellonUserDetails);
 
       // add the current existant records
       addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
@@ -282,6 +283,7 @@ const AddPotentialIntro = () => {
       urlencoded.append("Priority", keyRelationInfo.prority);
       urlencoded.append("Full Name", mellonUserDetails.fullName);
       urlencoded.append("Notes", keyRelationInfo.notes);
+      urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
       var requestOptions = {
         method: updateRecord.method,

@@ -183,10 +183,14 @@ const FirstScreen = () => {
     data: mellonKeyData,
     isLoading: mellonKeyLoading,
     refetch: getPaginate,
-  } = useQuery(["key-list", userDetails?.fullName], handleConnectionsList, {
-    refetchOnWindowFocus: true,
-    enabled: true,
-  });
+  } = useQuery(
+    ["key-list" + userDetails?.fullName, userDetails?.fullName],
+    handleConnectionsList,
+    {
+      refetchOnWindowFocus: true,
+      enabled: true,
+    }
+  );
 
   // get single potential intro
   const handlePotentialList = async () => {
@@ -228,10 +232,14 @@ const FirstScreen = () => {
     data: mellonPotentialData,
     isLoading: mellonPotentialLoading,
     refetch: getPotentialPaginate,
-  } = useQuery(["potential-list", userDetails?.fullName], handlePotentialList, {
-    refetchOnWindowFocus: true,
-    enabled: true,
-  });
+  } = useQuery(
+    ["potential-list" + userDetails?.fullName, userDetails?.fullName],
+    handlePotentialList,
+    {
+      refetchOnWindowFocus: true,
+      enabled: true,
+    }
+  );
 
   useEffect(() => {
     // getActualLink
