@@ -314,10 +314,10 @@ const SingleUser = () => {
 
   // more mutual connection or not
   const detectIfMoreMutualConnection = () => {
-    // document.querySelector(".artdeco-card div.ph5.pb5 > a.app-aware-link").href
-
-    // detect the classname
-    waitForClass(".artdeco-card div.ph5.pb5 > a.app-aware-link", function () {
+    const mutualConnetionExist = document?.querySelector(
+      ".artdeco-card div.ph5.pb5 > a.app-aware-link"
+    );
+    if (mutualConnetionExist) {
       setMellonZeroOrMore(true);
 
       // set mutual link
@@ -325,10 +325,17 @@ const SingleUser = () => {
         ".artdeco-card div.ph5.pb5 > a.app-aware-link"
       ).href;
       setMellonMutualLink(mutuallLink);
-    });
+    } else {
+      setMellonZeroOrMore(false);
+      setMellonMutualLink("");
+    }
   };
   useEffect(() => {
-    detectIfMoreMutualConnection();
+    let mellonMutualCheck = setInterval(() => {
+      detectIfMoreMutualConnection();
+    }, 500);
+
+    return () => clearInterval(mellonMutualCheck);
   }, []);
 
   // if not on user page shut down the widget
@@ -543,7 +550,7 @@ const SingleUser = () => {
                           chrome.tabs.create({ url: mellonMutualLink });
                         }}
                       >
-                        More
+                        See
                       </a>
                     ) : (
                       "0"
@@ -628,7 +635,7 @@ const SingleUser = () => {
                             });
                           }}
                         >
-                          More
+                          See
                         </a>
                       ) : (
                         "0"
@@ -649,7 +656,7 @@ const SingleUser = () => {
                             });
                           }}
                         >
-                          More
+                          See
                         </a>
                       ) : (
                         "0"
