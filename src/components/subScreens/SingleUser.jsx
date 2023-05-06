@@ -352,6 +352,38 @@ const SingleUser = () => {
     return () => clearInterval(mellonPageCheck);
   }, []);
 
+  // function returning the number of circles for the strenth
+  const mellonDynamicCircles = (mellonKeyData) => {
+    if (
+      mellonKeyData?.["Relationship Strength"] === "Low" ||
+      !mellonKeyData?.["Relationship Strength"] ||
+      mellonKeyData?.["Relationship Strength"] === "N/A"
+    ) {
+      return 1;
+    }
+    if (mellonKeyData?.["Relationship Strength"] === "Medium") {
+      return 2;
+    }
+    if (mellonKeyData?.["Relationship Strength"] === "High") {
+      return 3;
+    }
+  };
+  const mellonDynamicCirclesPotential = (mellonPotentialData) => {
+    if (
+      mellonPotentialData?.Priority === "Low" ||
+      !mellonPotentialData?.Priority ||
+      mellonPotentialData?.Priority === "N/A"
+    ) {
+      return 1;
+    }
+    if (mellonPotentialData?.Priority === "Medium") {
+      return 2;
+    }
+    if (mellonPotentialData?.Priority === "High") {
+      return 3;
+    }
+  };
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -465,56 +497,21 @@ const SingleUser = () => {
               <div className="mellon-body-detial-item">
                 <p>Relationship Strength</p>
                 <div className="mellon-ext-details-circles">
-                  {new Array(
-                    (() => {
-                      if (
-                        mellonKeyData?.["Relationship Strength"] === "Low" ||
-                        !mellonKeyData?.["Relationship Strength"] ||
-                        mellonKeyData?.["Relationship Strength"] === "N/A"
-                      ) {
-                        return 1;
-                      }
-                      if (
-                        mellonKeyData?.["Relationship Strength"] === "Medium"
-                      ) {
-                        return 2;
-                      }
-                      if (mellonKeyData?.["Relationship Strength"] === "High") {
-                        return 3;
-                      }
-                    })()
-                  )
+                  {new Array(mellonDynamicCircles(mellonKeyData))
                     .fill("")
                     .map((elm, idx) => {
                       return (
                         <img
-                          src={chrome.runtime.getURL("/assets/circle-red.svg")}
+                          src={
+                            mellonDynamicCircles(mellonKeyData) > 1
+                              ? chrome.runtime.getURL("/assets/circle-blue.svg")
+                              : chrome.runtime.getURL("/assets/circle-red.svg")
+                          }
                           alt="star"
                         />
                       );
                     })}
-                  {new Array(
-                    3 -
-                      (() => {
-                        if (
-                          mellonKeyData?.["Relationship Strength"] === "Low" ||
-                          !mellonKeyData?.["Relationship Strength"] ||
-                          mellonKeyData?.["Relationship Strength"] === "N/A"
-                        ) {
-                          return 1;
-                        }
-                        if (
-                          mellonKeyData?.["Relationship Strength"] === "Medium"
-                        ) {
-                          return 2;
-                        }
-                        if (
-                          mellonKeyData?.["Relationship Strength"] === "High"
-                        ) {
-                          return 3;
-                        }
-                      })()
-                  )
+                  {new Array(3 - mellonDynamicCircles(mellonKeyData))
                     .fill("")
                     .map((elm, idx) => {
                       return (
@@ -583,48 +580,29 @@ const SingleUser = () => {
                   <p>Priority</p>
                   <div className="mellon-ext-details-circles">
                     {new Array(
-                      (() => {
-                        if (
-                          mellonPotentialData?.Priority === "Low" ||
-                          !mellonPotentialData?.Priority
-                        ) {
-                          return 1;
-                        }
-                        if (mellonPotentialData?.Priority === "Medium") {
-                          return 2;
-                        }
-                        if (mellonPotentialData?.Priority === "High") {
-                          return 3;
-                        }
-                      })()
+                      mellonDynamicCirclesPotential(mellonPotentialData)
                     )
                       .fill("")
                       .map((elm, idx) => {
                         return (
                           <img
-                            src={chrome.runtime.getURL(
-                              "/assets/circle-red.svg"
-                            )}
+                            src={
+                              mellonDynamicCirclesPotential(
+                                mellonPotentialData
+                              ) > 1
+                                ? chrome.runtime.getURL(
+                                    "/assets/circle-blue.svg"
+                                  )
+                                : chrome.runtime.getURL(
+                                    "/assets/circle-red.svg"
+                                  )
+                            }
                             alt="star"
                           />
                         );
                       })}
                     {new Array(
-                      3 -
-                        (() => {
-                          if (
-                            mellonPotentialData?.Priority === "Low" ||
-                            !mellonPotentialData?.Priority
-                          ) {
-                            return 1;
-                          }
-                          if (mellonPotentialData?.Priority === "Medium") {
-                            return 2;
-                          }
-                          if (mellonPotentialData?.Priority === "High") {
-                            return 3;
-                          }
-                        })()
+                      3 - mellonDynamicCirclesPotential(mellonPotentialData)
                     )
                       .fill("")
                       .map((elm, idx) => {
