@@ -175,6 +175,15 @@ const AddPotentialIntro = () => {
   const handleNewPotentialIntro = async (e) => {
     e.preventDefault();
 
+    // check form inputs
+    if (!keyRelationInfo.notes) {
+      console.log("hitted");
+      setKeyRelationInfo({
+        ...keyRelationInfo,
+        notes: "...",
+      });
+    }
+
     setAddingNewKey(true);
 
     // get user rest detail
@@ -282,7 +291,10 @@ const AddPotentialIntro = () => {
       urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
       urlencoded.append("Priority", keyRelationInfo.prority);
       urlencoded.append("Full Name", mellonUserDetails.fullName);
-      urlencoded.append("Notes", keyRelationInfo.notes);
+      urlencoded.append(
+        "Notes",
+        keyRelationInfo.notes ? keyRelationInfo.notes : "..."
+      );
       urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
       var requestOptions = {
@@ -342,6 +354,7 @@ const AddPotentialIntro = () => {
                   goal: e.target.value,
                 });
               }}
+              required
             >
               <option disabled selected>
                 Select a goal
@@ -367,6 +380,7 @@ const AddPotentialIntro = () => {
                   prority: e.target.value,
                 });
               }}
+              required
             >
               <option value="" selected disabled>
                 Select an option

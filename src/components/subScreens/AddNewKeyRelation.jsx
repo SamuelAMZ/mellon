@@ -178,6 +178,17 @@ const AddNewKeyRelation = () => {
   const handleNewKeyRelation = async (e) => {
     e.preventDefault();
 
+    // check form inputs
+    if (goalsList.length < 1) {
+      return alert("Select at least one goal");
+    }
+    if (!keyRelationInfo.notes) {
+      setKeyRelationInfo({
+        ...keyRelationInfo,
+        notes: " ",
+      });
+    }
+
     setAddingNewKey(true);
 
     // get user rest detail
@@ -426,6 +437,7 @@ const AddNewKeyRelation = () => {
           <div className="mellon-select-container">
             <select
               className="mellon-select"
+              required
               onChange={(e) => {
                 setKeyRelationInfo({
                   ...keyRelationInfo,
