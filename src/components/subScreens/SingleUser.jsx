@@ -220,7 +220,7 @@ const SingleUser = () => {
 
         let goalIdToSend = "";
         if (mellonKeyData.Goals) {
-          goalIdToSend = mellonKeyData.Goals;
+          goalIdToSend = [mellonKeyData.Goals[0]];
         }
         if (mellonPotentialData.Goal) {
           goalIdToSend = mellonPotentialData.Goal;
@@ -499,6 +499,11 @@ const SingleUser = () => {
                 <p>Goals</p>
                 <div className="mellon-ext-details-circles">
                   <p className="mellon-goal-high">{singleGoal}</p>
+                  <span className="mellon-more-goals">
+                    {mellonKeyData?.Goals?.length > 1 &&
+                      singleGoal &&
+                      ` +${mellonKeyData.Goals.length - 1} goal(s)`}
+                  </span>
                 </div>
               </div>
               <div className="mellon-body-detial-item">
@@ -550,7 +555,7 @@ const SingleUser = () => {
                           chrome.tabs.create({ url: mellonMutualLink });
                         }}
                       >
-                        See
+                        View
                       </a>
                     ) : (
                       "0"
@@ -635,7 +640,7 @@ const SingleUser = () => {
                             });
                           }}
                         >
-                          See
+                          View
                         </a>
                       ) : (
                         "0"
@@ -656,7 +661,7 @@ const SingleUser = () => {
                             });
                           }}
                         >
-                          See
+                          View
                         </a>
                       ) : (
                         "0"

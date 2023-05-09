@@ -13,6 +13,10 @@ const AddNewKeyRelation = () => {
   const [addingNewKey, setAddingNewKey] = useState(false);
   const [mellonUserGoals, setMellonUserGoals] = useState([]);
 
+  // goals
+  const [goalsList, setGoalsList] = useState([]);
+  const [selectGoal, setSelectGoal] = useState(false);
+
   const backToSingleUser = () => {
     changeScreen({
       first: false,
@@ -277,7 +281,7 @@ const AddNewKeyRelation = () => {
       // add the current existant records
       addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
 
-      urlencoded.append("Goals", JSON.stringify([keyRelationInfo.goal]));
+      urlencoded.append("Goals", JSON.stringify(keyRelationInfo.goal));
       urlencoded.append("Is Key Relationship", "true");
       urlencoded.append("is First Degree", "true");
       urlencoded.append("Linkedin URL", linkedinUrl);
@@ -322,6 +326,32 @@ const AddNewKeyRelation = () => {
     }
 
     setAddingNewKey(false);
+  };
+
+  // choose goals widget
+  const chooseGoals = () => {
+    let goalsIds = [];
+    let mellonGoalsInputs = document.querySelector(
+      ".mellon-select-goal-container ul"
+    );
+
+    Array.from(mellonGoalsInputs.children).forEach((elm) => {
+      if (elm.querySelector(".checkbox")?.checked) {
+        goalsIds.push(elm.querySelector(".checkbox").getAttribute("id"));
+      }
+    });
+
+    setGoalsList(goalsIds);
+  };
+  const checkedChecker = (goalId) => {
+    let checkOrNot = false;
+    goalsList.forEach((elm) => {
+      if (elm === goalId) {
+        checkOrNot = true;
+      }
+    });
+
+    return checkOrNot;
   };
 
   // useEffect(() => {
@@ -380,26 +410,14 @@ const AddNewKeyRelation = () => {
         <div className="mellon-form-group">
           <label htmlFor="mellon-goals">Goals</label>
           <div className="mellon-select-container">
-            <select
-              className="mellon-select"
-              onChange={(e) => {
-                setKeyRelationInfo({
-                  ...keyRelationInfo,
-                  goal: e.target.value,
-                });
-              }}
+            <div
+              className="mellon-select mellon-select-goal"
+              onClick={() => setSelectGoal(true)}
             >
-              <option disabled selected>
-                Select a goal
-              </option>
-              {mellonUserGoals.map((elm, idx) => {
-                return (
-                  <option key={idx} value={elm.id}>
-                    {elm.name}
-                  </option>
-                );
-              })}
-            </select>
+              {goalsList && goalsList.length > 0
+                ? `${goalsList.length} goal(s) selected`
+                : "Select goals"}
+            </div>
           </div>
         </div>
 
@@ -442,6 +460,71 @@ const AddNewKeyRelation = () => {
           {!addingNewKey && <button className="mellon-button">Add new</button>}
         </div>
       </form>
+
+      {/* goals list view */}
+      {selectGoal && (
+        <>
+          <div className="mellon-select-goal-container">
+            {/* list */}
+            <ul>
+              {mellonUserGoals.length >= 1 ? (
+                <>
+                  {mellonUserGoals.map((elm, idx) => {
+                    return (
+                      <>
+                        {checkedChecker(elm.id) ? (
+                          <li key={idx}>
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-lg"
+                              id={elm.id}
+                              checked
+                              onChange={chooseGoals}
+                            />
+                            <p className="mellon-labels">{elm.name}</p>
+                          </li>
+                        ) : (
+                          <li key={idx}>
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-lg"
+                              id={elm.id}
+                              onChange={chooseGoals}
+                            />
+                            <p className="mellon-labels">{elm.name}</p>
+                          </li>
+                        )}
+                      </>
+                    );
+                  })}
+
+                  <button
+                    className="mellon-button"
+                    onClick={() => {
+                      console.log(keyRelationInfo, goalsList);
+                      setKeyRelationInfo({
+                        ...keyRelationInfo,
+                        goal: goalsList,
+                      });
+                      setSelectGoal(false);
+                    }}
+                  >
+                    Done
+                  </button>
+                </>
+              ) : (
+                <p className="mellon-no-goal">No goal yet...</p>
+              )}
+            </ul>
+
+            {/* done btn */}
+          </div>
+          <div
+            className="mellon-select-goal-container-back"
+            onClick={() => setSelectGoal(false)}
+          ></div>
+        </>
+      )}
     </div>
   );
 };
