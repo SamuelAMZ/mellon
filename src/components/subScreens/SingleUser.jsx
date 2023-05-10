@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 
+// comps
+import Loading from "./Loading";
+
 // react query
 import { useQuery } from "react-query";
 
@@ -217,10 +220,10 @@ const SingleUser = () => {
         };
 
         let goalIdToSend = "";
-        if (mellonKeyData.Goals) {
+        if (mellonKeyData?.Goals) {
           goalIdToSend = [mellonKeyData.Goals[0]];
         }
-        if (mellonPotentialData.Goal) {
+        if (mellonPotentialData?.Goal) {
           goalIdToSend = mellonPotentialData.Goal;
         }
 
@@ -232,8 +235,6 @@ const SingleUser = () => {
         );
 
         let result = await req.json();
-
-        console.log(result?.response?.results);
 
         setSingleGoal(result?.response?.results[0].Name);
       })();
@@ -490,7 +491,7 @@ const SingleUser = () => {
 
       <div className="mellon-ext-user-details-body">
         <>
-          {(mellonKeyLoading || mellonPotentialLoading) && <p>Loading...</p>}
+          {(mellonKeyLoading || mellonPotentialLoading) && <Loading />}
 
           {/* if it s key relation */}
           {!mellonKeyLoading && mellonKeyData && mellonKeyData?._id && (

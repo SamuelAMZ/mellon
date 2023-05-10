@@ -5,6 +5,7 @@ import { useQuery } from "react-query";
 
 // comps
 import Nothing from "./Nothing";
+import Loading from "./Loading";
 
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
@@ -170,7 +171,7 @@ const Potentials = () => {
       {tableData && tableData.length === 0 && !tableLoading && <Nothing />}
 
       {/* loading for search */}
-      {tableLoading && <div className="mellon-loader-wrapper">loading...</div>}
+      {tableLoading && <Loading />}
     </div>
   );
 };
