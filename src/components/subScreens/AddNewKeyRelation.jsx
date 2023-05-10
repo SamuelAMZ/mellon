@@ -319,23 +319,17 @@ const AddNewKeyRelation = () => {
       const response = await fetch(updateRecord.url, requestOptions);
 
       if (response.status >= 200 && response.status < 400) {
-        // updating the goals
-        console.log(keyRelationInfo.goal);
-
         let conId = "";
         for (let x = 0; x < keyRelationInfo.goal.length; x++) {
-          console.log(x, "runned");
-
-          console.log("1");
           if (!conId && updateRecord.method === "POST") {
             conId = await response.json();
             conId = conId.id;
           }
-          console.log("2");
+
           if (!conId && updateRecord.method === "PUT") {
             conId = updateRecord.id;
           }
-          console.log("3");
+
           try {
             await updateGoalsDataType(
               keyRelationInfo.goal[x],
@@ -345,7 +339,6 @@ const AddNewKeyRelation = () => {
           } catch (error) {
             console.log(error);
           }
-          console.log("4");
         }
 
         // closing the add new screen

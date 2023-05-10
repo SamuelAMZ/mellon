@@ -124,6 +124,7 @@ const AddPotentialIntro = () => {
         method: "PUT",
         url: `${apiEndpoint}/${result.response.results[0]._id}`,
         data: result.response.results[0],
+        id: result.response.results[0]._id,
       };
     }
     return { method: "POST", url: apiEndpoint, data: {} };
@@ -284,8 +285,6 @@ const AddPotentialIntro = () => {
         "Linkedin Description",
       ];
 
-      console.log(mellonUserDetails);
-
       // add the current existant records
       addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
 
@@ -310,6 +309,28 @@ const AddPotentialIntro = () => {
       const response = await fetch(updateRecord.url, requestOptions);
 
       if (response.status >= 200 && response.status < 400) {
+        let conId = "";
+        for (let x = 0; x < 1; x++) {
+          if (!conId && updateRecord.method === "POST") {
+            conId = await response.json();
+            conId = conId.id;
+          }
+
+          if (!conId && updateRecord.method === "PUT") {
+            conId = updateRecord.id;
+          }
+
+          try {
+            await updateGoalsDataType(
+              keyRelationInfo.goal,
+              conId,
+              keyRelationInfo.relationshipStrength
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
+
         setAddingNewKey(false);
 
         // redirect to the user page
@@ -332,6 +353,156 @@ const AddPotentialIntro = () => {
     }
 
     setAddingNewKey(false);
+  };
+
+  //  update goals data type
+  const updateGoalsDataType = async (goalId, connectionId, strength) => {
+    console.log(goalId, "here");
+    // get goal details
+    const goalDetails = await getGoalDetails(goalId);
+
+    // build key relationship array
+    let keyRelationShipsArr = [];
+    if (goalDetails.response.results[0]["Key Relationships"]) {
+      keyRelationShipsArr =
+        goalDetails.response.results[0]["Key Relationships"];
+    }
+
+    // build High Strength Relationships array
+    let highStrengthArr = [];
+    if (goalDetails.response.results[0]["High Strength Relationships"]) {
+      highStrengthArr =
+        goalDetails.response.results[0]["High Strength Relationships"];
+    }
+
+    // build Medium Strength Relationships array
+    let mediumStrengthArr = [];
+    if (goalDetails.response.results[0]["Medium Strength Relationships"]) {
+      mediumStrengthArr =
+        goalDetails.response.results[0]["Medium Strength Relationships"];
+    }
+
+    // build Low Strength Relationships array
+    let lowStrengthArr = [];
+    if (goalDetails.response.results[0]["Low Strength Relationships"]) {
+      lowStrengthArr =
+        goalDetails.response.results[0]["Low Strength Relationships"];
+    }
+
+    // potential intro
+    let potentialIntroArr = [];
+    if (goalDetails.response.results[0]["Potential Intros"]) {
+      potentialIntroArr = goalDetails.response.results[0]["Potential Intros"];
+    }
+
+    // push new data to arrays
+    potentialIntroArr.push(connectionId);
+
+    // new PUT request to update goal
+    // get user rest detail
+    let userToken = null;
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
+      }
+    });
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    await delay(200);
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    var urlencoded = new URLSearchParams();
+
+    urlencoded.append(
+      "Key Relationships",
+      !keyRelationShipsArr || keyRelationShipsArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(keyRelationShipsArr)
+    );
+    urlencoded.append(
+      "High Strength Relationships",
+      !highStrengthArr || highStrengthArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(highStrengthArr)
+    );
+    urlencoded.append(
+      "Medium Strength Relationships",
+      !mediumStrengthArr || mediumStrengthArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(mediumStrengthArr)
+    );
+    urlencoded.append(
+      "Low Strength Relationships",
+      !lowStrengthArr || lowStrengthArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(lowStrengthArr)
+    );
+    urlencoded.append(
+      "Potential Intros",
+      !potentialIntroArr || potentialIntroArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(potentialIntroArr)
+    );
+    urlencoded.append("Name", goalDetails.response.results[0].Name);
+
+    var requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    const response = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/goal/${goalId}`,
+      requestOptions
+    );
+  };
+
+  // get info about a goal
+  const getGoalDetails = async (goalId) => {
+    console.log(goalId);
+    // get user rest detail
+    let userToken = null;
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
+      }
+    });
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    await delay(200);
+
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    let requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    const req = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/goal?constraints=[ { "key": "_id", "constraint_type": "equals", "value": ${JSON.stringify(
+        goalId
+      )} } ]`,
+      requestOptions
+    );
+
+    let result = await req.json();
+    return result;
   };
 
   return (
