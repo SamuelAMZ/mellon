@@ -189,7 +189,7 @@ const AddNewKeyRelation = () => {
     if (!keyRelationInfo.notes) {
       setKeyRelationInfo({
         ...keyRelationInfo,
-        notes: " ",
+        notes: "...",
       });
     }
 
@@ -306,7 +306,10 @@ const AddNewKeyRelation = () => {
         keyRelationInfo.relationshipStrength
       );
       urlencoded.append("Full Name", mellonUserDetails.fullName);
-      urlencoded.append("Notes", keyRelationInfo.notes);
+      urlencoded.append(
+        "Notes",
+        keyRelationInfo.notes ? keyRelationInfo.notes : "..."
+      );
       urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
       var requestOptions = {
