@@ -70,7 +70,7 @@ const Keys = () => {
       };
 
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" } ]`,
+        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" } ]`,
         requestOptions
       );
 

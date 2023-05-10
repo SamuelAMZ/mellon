@@ -57,7 +57,10 @@ const AddPotentialIntro = () => {
         redirect: "follow",
       };
 
-      fetch("https://mellon.app/version-test/api/1.1/obj/goal", requestOptions)
+      fetch(
+        "https://buckfifty.com/version-test/api/1.1/obj/goal",
+        requestOptions
+      )
         .then((response) => response.json())
         .then((result) => {
           if (result.response.count > 0) {
@@ -260,7 +263,7 @@ const AddPotentialIntro = () => {
       // check if the user already exist for the current user
       let updateRecord = await mellonPreventDuplicates(
         linkedinUrl,
-        "https://mellon.app/version-test/api/1.1/obj/potentialIntro",
+        "https://buckfifty.com/version-test/api/1.1/obj/potentialIntro",
         userToken
       );
 

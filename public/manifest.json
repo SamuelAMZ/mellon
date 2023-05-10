@@ -35,5 +35,5 @@
       "resources": ["linkedin/templates/*", "assets/*", "static/*"]
     }
   ],
-  "host_permissions": ["https://www.linkedin.com/", "https://mellon.app/"]
+  "host_permissions": ["https://www.linkedin.com/", "https://buckfifty.com/"]
 }

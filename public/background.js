@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     };
 
     fetch(
-      "https://mellon.app/version-test/api/1.1/wf/generate-user-token",
+      "https://buckfifty.com/version-test/api/1.1/wf/generate-user-token",
       requestOptions
     )
       .then((response) => response.json())

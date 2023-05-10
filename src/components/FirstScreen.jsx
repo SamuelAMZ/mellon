@@ -160,7 +160,7 @@ const FirstScreen = () => {
       let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
 
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
           linkedinUrl
         )} }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "true" } ]`,
         requestOptions
@@ -209,7 +209,7 @@ const FirstScreen = () => {
       let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
 
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+        `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
           linkedinUrl
         )} } ]`,
         requestOptions

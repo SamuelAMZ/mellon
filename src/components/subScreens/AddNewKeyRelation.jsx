@@ -60,7 +60,10 @@ const AddNewKeyRelation = () => {
         redirect: "follow",
       };
 
-      fetch("https://mellon.app/version-test/api/1.1/obj/goal", requestOptions)
+      fetch(
+        "https://buckfifty.com/version-test/api/1.1/obj/goal",
+        requestOptions
+      )
         .then((response) => response.json())
         .then((result) => {
           if (result.response.count > 0) {
@@ -124,6 +127,7 @@ const AddNewKeyRelation = () => {
         method: "PUT",
         url: `${apiEndpoint}/${result.response.results[0]._id}`,
         data: result.response.results[0],
+        id: result.response.results[0]._id,
       };
     }
     return { method: "POST", url: apiEndpoint, data: {} };
@@ -266,7 +270,7 @@ const AddNewKeyRelation = () => {
       // check if the user already exist for the current user
       let updateRecord = await mellonPreventDuplicates(
         linkedinUrl,
-        "https://mellon.app/version-test/api/1.1/obj/connection",
+        "https://buckfifty.com/version-test/api/1.1/obj/connection",
         userToken
       );
 
@@ -315,6 +319,36 @@ const AddNewKeyRelation = () => {
       const response = await fetch(updateRecord.url, requestOptions);
 
       if (response.status >= 200 && response.status < 400) {
+        // updating the goals
+        console.log(keyRelationInfo.goal);
+
+        let conId = "";
+        for (let x = 0; x < keyRelationInfo.goal.length; x++) {
+          console.log(x, "runned");
+
+          console.log("1");
+          if (!conId && updateRecord.method === "POST") {
+            conId = await response.json();
+            conId = conId.id;
+          }
+          console.log("2");
+          if (!conId && updateRecord.method === "PUT") {
+            conId = updateRecord.id;
+          }
+          console.log("3");
+          try {
+            await updateGoalsDataType(
+              keyRelationInfo.goal[x],
+              conId,
+              keyRelationInfo.relationshipStrength
+            );
+          } catch (error) {
+            console.log(error);
+          }
+          console.log("4");
+        }
+
+        // closing the add new screen
         setAddingNewKey(false);
 
         // redirect to the user page
@@ -365,47 +399,162 @@ const AddNewKeyRelation = () => {
     return checkOrNot;
   };
 
-  // useEffect(() => {
-  //   function delay(ms) {
-  //     return new Promise((resolve) => setTimeout(resolve, ms));
-  //   }
-  //   const grabUserDetails = async () => {
-  //     //   wait 1sec
-  //     await delay(100);
+  //  update goals data type
+  const updateGoalsDataType = async (goalId, connectionId, strength) => {
+    // get goal details
+    const goalDetails = await getGoalDetails(goalId);
 
-  //     //   start scraping
-  //     const userDetailsObj = {};
+    // build key relationship array
+    let keyRelationShipsArr = [];
+    if (goalDetails.response.results[0]["Key Relationships"]) {
+      keyRelationShipsArr =
+        goalDetails.response.results[0]["Key Relationships"];
+    }
 
-  //     //   get full name
-  //     userDetailsObj.fullName = document
-  //       .querySelector(".pv-text-details__left-panel h1")
-  //       ?.textContent?.trim();
+    // build High Strength Relationships array
+    let highStrengthArr = [];
+    if (goalDetails.response.results[0]["High Strength Relationships"]) {
+      highStrengthArr =
+        goalDetails.response.results[0]["High Strength Relationships"];
+    }
 
-  //     // actual role
-  //     userDetailsObj.actualRole = document
-  //       .querySelector(".pv-text-details__left-panel .text-body-medium")
-  //       ?.textContent?.trim();
+    // build Medium Strength Relationships array
+    let mediumStrengthArr = [];
+    if (goalDetails.response.results[0]["Medium Strength Relationships"]) {
+      mediumStrengthArr =
+        goalDetails.response.results[0]["Medium Strength Relationships"];
+    }
 
-  //     // profile photo
-  //     userDetailsObj.profilePhoto = document.querySelector(
-  //       "button.pv-top-card-profile-picture img"
-  //     )?.src;
+    // build Low Strength Relationships array
+    let lowStrengthArr = [];
+    if (goalDetails.response.results[0]["Low Strength Relationships"]) {
+      lowStrengthArr =
+        goalDetails.response.results[0]["Low Strength Relationships"];
+    }
 
-  //     // is first degree
-  //     let isOrNot =
-  //       document.querySelector(".dist-value")?.innerText.trim() === "1st"
-  //         ? true
-  //         : false;
-  //     userDetailsObj.isFirstDegree = isOrNot;
+    // potential intro
+    let potentialIntroArr = [];
+    if (goalDetails.response.results[0]["Potential Intros"]) {
+      potentialIntroArr = goalDetails.response.results[0]["Potential Intros"];
+    }
 
-  //     console.log(userDetailsObj);
-  //   };
+    // push new data to arrays
+    keyRelationShipsArr.push(connectionId);
+    if (strength === "High") {
+      highStrengthArr.push(connectionId);
+    }
+    if (strength === "Medium") {
+      mediumStrengthArr.push(connectionId);
+    }
+    if (strength === "Low" || !strength) {
+      lowStrengthArr.push(connectionId);
+    }
 
-  //   (async () => {
-  //     await delay(3000);
-  //     await grabUserDetails();
-  //   })();
-  // }, []);
+    // new PUT request to update goal
+    // get user rest detail
+    let userToken = null;
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
+      }
+    });
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    await delay(200);
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    var urlencoded = new URLSearchParams();
+
+    urlencoded.append(
+      "Key Relationships",
+      !keyRelationShipsArr || keyRelationShipsArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(keyRelationShipsArr)
+    );
+    urlencoded.append(
+      "High Strength Relationships",
+      !highStrengthArr || highStrengthArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(highStrengthArr)
+    );
+    urlencoded.append(
+      "Medium Strength Relationships",
+      !mediumStrengthArr || mediumStrengthArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(mediumStrengthArr)
+    );
+    urlencoded.append(
+      "Low Strength Relationships",
+      !lowStrengthArr || lowStrengthArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(lowStrengthArr)
+    );
+    urlencoded.append(
+      "Potential Intros",
+      !potentialIntroArr || potentialIntroArr.length < 1
+        ? JSON.stringify([])
+        : JSON.stringify(potentialIntroArr)
+    );
+    urlencoded.append("Name", goalDetails.response.results[0].Name);
+
+    var requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    const response = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/goal/${goalId}`,
+      requestOptions
+    );
+  };
+
+  // get info about a goal
+  const getGoalDetails = async (goalId) => {
+    // get user rest detail
+    let userToken = null;
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
+      }
+    });
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    await delay(200);
+
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    let requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    const req = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/goal?constraints=[ { "key": "_id", "constraint_type": "equals", "value": ${JSON.stringify(
+        goalId
+      )} } ]`,
+      requestOptions
+    );
+
+    let result = await req.json();
+    return result;
+  };
 
   return (
     <div className="mellon-add-new-key-relation-wrapper">

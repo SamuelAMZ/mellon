@@ -176,7 +176,7 @@ const scrapFirstDegrees = async () => {
     // check if the user already exist for the current user
     let updateRecord = await mellonPreventDuplicates(
       linkedinUrl,
-      "https://mellon.app/version-test/api/1.1/obj/connection"
+      "https://buckfifty.com/version-test/api/1.1/obj/connection"
     );
 
     let myHeaders = new Headers();

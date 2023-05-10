@@ -70,7 +70,7 @@ const Potentials = () => {
       };
 
       const req = await fetch(
-        `https://mellon.app/version-test/api/1.1/obj/potentialIntro`,
+        `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro`,
         requestOptions
       );
 
