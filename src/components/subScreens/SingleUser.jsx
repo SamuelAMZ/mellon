@@ -26,6 +26,10 @@ const SingleUser = () => {
   const [mellonZeroOrMore, setMellonZeroOrMore] = useState(false);
   const [mellonMutualLink, setMellonMutualLink] = useState("");
 
+  // loading user more goals
+  const [loadingMoreGoals, setLoadingMoreGoals] = useState(false);
+  const [moreGoalsData, setMoreGoalsData] = useState(null);
+
   // get user first details
   let userLinked = null;
   let userToken = null;
@@ -392,6 +396,55 @@ const SingleUser = () => {
     }
   };
 
+  // fetch all user individual goals
+  const mellonFetchUserGoals = async (idArr) => {
+    setLoadingMoreGoals(true);
+
+    let userToken = null;
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
+      }
+    });
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    await delay(200);
+
+    let goalReturned = [];
+
+    for (let i = 0; i < idArr.length; i++) {
+      let myHeaders = new Headers();
+      myHeaders.append("Authorization", "Bearer " + userToken);
+
+      let requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      const req = await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/goal?constraints=[ { "key": "_id", "constraint_type": "equals", "value": ${JSON.stringify(
+          idArr[i]
+        )} } ]`,
+        requestOptions
+      );
+
+      let result = await req.json();
+
+      if (result?.response?.results?.length > 0) {
+        goalReturned.push(result.response.results[0].Name);
+      }
+    }
+
+    setLoadingMoreGoals(false);
+    setMoreGoalsData(goalReturned);
+  };
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -498,14 +551,47 @@ const SingleUser = () => {
             <>
               <div className="mellon-body-detial-item">
                 <p>Goals</p>
-                <div className="mellon-ext-details-circles">
-                  <p className="mellon-goal-high">{singleGoal}</p>
-                  <span className="mellon-more-goals">
-                    {mellonKeyData?.Goals?.length > 1 &&
-                      singleGoal &&
-                      ` +${mellonKeyData.Goals.length - 1} goal(s)`}
-                  </span>
+                <div className="dropdown dropdown-end">
+                  <div className="mellon-ext-details-circles">
+                    <p className="mellon-goal-high">{singleGoal}</p>
+                    <span
+                      tabIndex={0}
+                      className="mellon-more-goals"
+                      onClick={() => mellonFetchUserGoals(mellonKeyData?.Goals)}
+                    >
+                      {mellonKeyData?.Goals?.length > 1 &&
+                        singleGoal &&
+                        ` +${mellonKeyData.Goals.length - 1} goal(s)`}
+                    </span>
+                  </div>
+
+                  {/* more goals dropdown content */}
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                  >
+                    {loadingMoreGoals && (
+                      <p className="more-goals-loading">Loading...</p>
+                    )}
+                    {!loadingMoreGoals &&
+                      moreGoalsData &&
+                      moreGoalsData?.map((elm) => {
+                        return (
+                          <li>
+                            <p>{elm}</p>
+                          </li>
+                        );
+                      })}
+                  </ul>
                 </div>
+
+                {/* <div className="dropdown dropdown-end">
+  <label tabIndex={0} className="btn m-1">Click</label>
+  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+    <li><a>Item 1</a></li>
+    <li><a>Item 2</a></li>
+  </ul>
+</div> */}
               </div>
               <div className="mellon-body-detial-item">
                 <p>Relationship Strength</p>
