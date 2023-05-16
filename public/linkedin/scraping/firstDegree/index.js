@@ -15,16 +15,7 @@ const scrapFirstDegrees = async () => {
   };
   mellonCreateBox();
 
-  let userLinked = null;
   let userToken = null;
-  chrome.storage.local.get("uid", function (item) {
-    if (item.uid) {
-      userLinked = item.uid;
-    }
-    if (!item.uid) {
-      userLinked = null;
-    }
-  });
   chrome.storage.local.get("utoken", function (item) {
     if (item.utoken) {
       userToken = item.utoken;
