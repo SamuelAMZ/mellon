@@ -528,6 +528,8 @@ const SingleUser = () => {
                     <p>Potential Intro</p>
                   </div>
 
+                  <a className="link">View in mellon</a>
+
                   <div className="mellon-ext-sep mellon-user-section"></div>
                 </>
               )}
@@ -542,30 +544,30 @@ const SingleUser = () => {
               !mellonKeyData?._id &&
               !mellonPotentialData?._id && (
                 <>
-                  <div className="mellon-key-or-not">
+                  {/* <div className="mellon-key-or-not">
                     <img
                       src={chrome.runtime.getURL("/assets/start.svg")}
                       alt="star"
                     />
                     <p>Connection (Not a Key Relationship)</p>
-                  </div>
+                  </div> */}
                   {isFirstDegree ? (
                     <button
-                      className="mellon-ext-btn btn btn-primary w-full"
+                      className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
                       onClick={addNewRelationView}
                     >
                       + Add Key Relationship
                     </button>
                   ) : (
                     <button
-                      className="mellon-ext-btn btn btn-primary w-full"
+                      className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
                       onClick={addPotentialIntroView}
                     >
                       + Add Potential Intro
                     </button>
                   )}
 
-                  <div className="mellon-ext-sep mellon-user-section"></div>
+                  {/* <div className="mellon-ext-sep mellon-user-section"></div> */}
                 </>
               )}
           </>
@@ -666,17 +668,19 @@ const SingleUser = () => {
                 <p>Mutual Connections</p>
                 <div className="mellon-ext-details-circles">
                   <p>
-                    {mellonZeroOrMore ? (
-                      <a
-                        onClick={() => {
-                          chrome.tabs.create({ url: mellonMutualLink });
-                        }}
-                      >
-                        View
-                      </a>
-                    ) : (
-                      "0"
-                    )}
+                    {mellonZeroOrMore &&
+                      mellonKeyData["Mutual Connections"] && (
+                        <a>{mellonKeyData["Mutual Connections"].length}</a>
+                      )}
+                    {mellonZeroOrMore &&
+                      !mellonKeyData["Mutual Connections"] && (
+                        <a
+                          onClick={() => setAndRedirectMutualPage("potential")}
+                        >
+                          View
+                        </a>
+                      )}
+                    {!mellonZeroOrMore && <p>0</p>}
                   </p>
                 </div>
               </div>
@@ -747,16 +751,28 @@ const SingleUser = () => {
                 <div className="mellon-body-detial-item">
                   <p>Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
+                    <img
+                      src={chrome.runtime.getURL("/assets/users.svg")}
+                      alt="user"
+                    />
                     <p>
-                      {mellonZeroOrMore ? (
-                        <a
-                          onClick={() => setAndRedirectMutualPage("potential")}
-                        >
-                          View
-                        </a>
-                      ) : (
-                        "0"
-                      )}
+                      {mellonZeroOrMore &&
+                        mellonPotentialData["Mutual Connections"] && (
+                          <a>
+                            {mellonPotentialData["Mutual Connections"].length}
+                          </a>
+                        )}
+                      {mellonZeroOrMore &&
+                        !mellonPotentialData["Mutual Connections"] && (
+                          <a
+                            onClick={() =>
+                              setAndRedirectMutualPage("potential")
+                            }
+                          >
+                            View
+                          </a>
+                        )}
+                      {!mellonZeroOrMore && <p>0</p>}
                     </p>
                   </div>
                 </div>
@@ -780,7 +796,7 @@ const SingleUser = () => {
             !mellonPotentialLoading &&
             !mellonPotentialData._id && (
               <>
-                <div className="mellon-body-detial-item">
+                {/* <div className="mellon-body-detial-item">
                   <p>Priority</p>
                   <div className="mellon-ext-details-circles">
                     <img
@@ -844,7 +860,7 @@ const SingleUser = () => {
                       )}
                     </p>
                   </div>
-                </div>
+                </div> */}
               </>
             )}
         </>
