@@ -136,7 +136,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     });
   }
 
-  // open linkedin uer page
+  // open linkedin user page
   if (message.from === "openUserUrl") {
     chrome.tabs.create(
       {
@@ -175,11 +175,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       },
       (tabs) => {
         const tabId = tabs.id;
-
-        // set linkedin target user url
-        chrome.storage.local.set({ mutualUrl: message.linkedin }, function () {
-          console.log("mutual connection targeted user set");
-        });
 
         // Execute the content script on the current tab
         chrome.scripting.executeScript({

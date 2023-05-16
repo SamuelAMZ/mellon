@@ -445,6 +445,36 @@ const SingleUser = () => {
     setMoreGoalsData(goalReturned);
   };
 
+  // handle set and redirect to mutual connection page
+  const setAndRedirectMutualPage = async (keyOrPotential) => {
+    // actual user link
+    let userLink = "";
+    chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
+      userLink = data.url;
+    });
+
+    await delay(200);
+
+    // set actual user linkedin url and key or potential in localstorage
+    chrome.storage.local.set(
+      {
+        currentMutualUrl: userLink,
+        currentMutualType: keyOrPotential,
+      },
+      function () {
+        console.log("set new current mutual page user");
+      }
+    );
+
+    await delay(200);
+
+    // redirect to mutual url
+    chrome.runtime.sendMessage({
+      from: "mutualAction",
+      url: mellonMutualLink,
+    });
+  };
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -715,38 +745,12 @@ const SingleUser = () => {
                   </div>
                 </div>
                 <div className="mellon-body-detial-item">
-                  <p>Key Mutual Connections</p>
+                  <p>Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
                     <p>
                       {mellonZeroOrMore ? (
                         <a
-                          onClick={() => {
-                            chrome.runtime.sendMessage({
-                              from: "openUserUrl",
-                              url: mellonMutualLink,
-                            });
-                          }}
-                        >
-                          View
-                        </a>
-                      ) : (
-                        "0"
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="mellon-body-detial-item">
-                  <p>Other Mutual Connections</p>
-                  <div className="mellon-ext-details-circles">
-                    <p>
-                      {mellonZeroOrMore ? (
-                        <a
-                          onClick={() => {
-                            chrome.runtime.sendMessage({
-                              from: "openUserUrl",
-                              url: mellonMutualLink,
-                            });
-                          }}
+                          onClick={() => setAndRedirectMutualPage("potential")}
                         >
                           View
                         </a>
