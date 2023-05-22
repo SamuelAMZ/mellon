@@ -185,5 +185,25 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     );
   }
 
+  // close mutual connection page
+  if (message.from === "closeMutualsTab") {
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    chrome.tabs.query({}, async (tabs) => {
+      for (let i = 0; i < tabs.length; i++) {
+        if (
+          tabs[i].url.includes(
+            "https://www.linkedin.com/search/results/people/?facetConnectionOf"
+          )
+        ) {
+          chrome.tabs.remove(tabs[i].id);
+          await delay(200);
+        }
+      }
+    });
+  }
+
   return true;
 });

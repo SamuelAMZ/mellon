@@ -489,6 +489,9 @@ const scrapMutualUsers = async () => {
 
   const numberOfPage = getNumberOfPage();
   await paginateAndGetPeople(numberOfPage);
+
+  // once done close the page
+  chrome.runtime.sendMessage({ from: "closeMutualsTab" });
 };
 
 // go

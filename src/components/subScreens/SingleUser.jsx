@@ -30,6 +30,9 @@ const SingleUser = () => {
   const [loadingMoreGoals, setLoadingMoreGoals] = useState(false);
   const [moreGoalsData, setMoreGoalsData] = useState(null);
 
+  // key mutual connections state
+  const [keyMutualConnections, setKeyMutualConnections] = useState([]);
+
   // get user first details
   let userLinked = null;
   let userToken = null;
@@ -475,6 +478,111 @@ const SingleUser = () => {
     });
   };
 
+  // redirect to mellon
+  const mellonRedirectToMellon = async (uid) => {
+    let url = `https://buckfifty.com/version-test/core_network/${uid}`;
+
+    chrome.runtime.sendMessage({
+      from: "openUserUrl",
+      url: url,
+    });
+  };
+
+  // get key relationships data
+  const mellonGetUserKeyRelationships = async () => {
+    const mellonCheckProfile = async () => {
+      let userToken = "";
+      chrome.storage.local.get("utoken", function (item) {
+        userToken = item.utoken;
+      });
+
+      await delay(200);
+
+      let myHeaders = new Headers();
+      myHeaders.append("Authorization", "Bearer " + userToken);
+
+      let requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      const req = await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" } ]`,
+        requestOptions
+      );
+
+      let result = await req.json();
+
+      if (result?.response?.results.length > 0) {
+        return result?.response?.results;
+      } else {
+        return [];
+      }
+    };
+
+    // check if linkedin profile exist already for the current user
+    return await mellonCheckProfile();
+  };
+
+  const { data: keyRelations, isLoading: keyRelationsLoading } = useQuery(
+    ["keys-list"],
+    mellonGetUserKeyRelationships,
+    {
+      refetchOnWindowFocus: false,
+      enabled: true,
+    }
+  );
+
+  useEffect(() => {
+    if (!keyRelations) {
+      return;
+    }
+    if (!mellonKeyData && !mellonPotentialData) {
+      return;
+    }
+
+    let keyConnectionsTemp = [];
+    let mutualFromUser = [];
+
+    // setKeyMutualConnections
+    if (keyRelations.length < 1) {
+      return setKeyMutualConnections([]);
+    }
+
+    for (let y = 0; y < keyRelations.length; y++) {
+      keyConnectionsTemp.push(keyRelations[y]._id);
+    }
+
+    // if the key relationship found  || potential intro
+    // extract it s mutual connections
+    // check for those that are present in both (key relations and on the key user)
+    // add then to the keymutualstemps array
+
+    // if user is key
+    if (mellonKeyData && mellonKeyData["Mutual Connections"]) {
+      mutualFromUser = [...mellonKeyData["Mutual Connections"]];
+    }
+
+    // if user is potential intro
+    if (mellonPotentialData && mellonPotentialData["Mutual Connections"]) {
+      mutualFromUser = [...mellonPotentialData["Mutual Connections"]];
+    }
+
+    // check for those that are present in both
+    let matches = [];
+    for (let i = 0; i < keyConnectionsTemp.length; i++) {
+      for (let x = 0; x < mutualFromUser.length; x++) {
+        if (keyConnectionsTemp[i] === mutualFromUser[x]) {
+          matches.push(mutualFromUser[x]);
+        }
+      }
+    }
+
+    console.log(matches);
+    setKeyMutualConnections(matches);
+  }, [keyRelations, mellonKeyData, mellonPotentialData]);
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -505,7 +613,12 @@ const SingleUser = () => {
                   />
                   <p>Key Relationship</p>
                 </div>
-                <a className="link">View in mellon</a>
+                <a
+                  className="link"
+                  onClick={() => mellonRedirectToMellon(mellonKeyData?._id)}
+                >
+                  View in mellon
+                </a>
 
                 <div className="mellon-ext-sep mellon-user-section"></div>
               </>
@@ -528,7 +641,14 @@ const SingleUser = () => {
                     <p>Potential Intro</p>
                   </div>
 
-                  <a className="link">View in mellon</a>
+                  <a
+                    className="link"
+                    onClick={() =>
+                      mellonRedirectToMellon(mellonPotentialData?._id)
+                    }
+                  >
+                    View in mellon
+                  </a>
 
                   <div className="mellon-ext-sep mellon-user-section"></div>
                 </>
@@ -674,9 +794,7 @@ const SingleUser = () => {
                       )}
                     {mellonZeroOrMore &&
                       !mellonKeyData["Mutual Connections"] && (
-                        <a
-                          onClick={() => setAndRedirectMutualPage("potential")}
-                        >
+                        <a onClick={() => setAndRedirectMutualPage("key")}>
                           View
                         </a>
                       )}
@@ -749,18 +867,16 @@ const SingleUser = () => {
                   </div>
                 </div>
                 <div className="mellon-body-detial-item">
-                  <p>Mutual Connections</p>
+                  <p>Key Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
                     <img
-                      src={chrome.runtime.getURL("/assets/users.svg")}
+                      src={chrome.runtime.getURL("/assets/users-active.svg")}
                       alt="user"
                     />
                     <p>
                       {mellonZeroOrMore &&
                         mellonPotentialData["Mutual Connections"] && (
-                          <a>
-                            {mellonPotentialData["Mutual Connections"].length}
-                          </a>
+                          <a>{keyMutualConnections.length}</a>
                         )}
                       {mellonZeroOrMore &&
                         !mellonPotentialData["Mutual Connections"] && (
