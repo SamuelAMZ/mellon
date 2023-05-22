@@ -14,6 +14,7 @@ export const VisibleScrensProvider = ({ children }) => {
     potential: false,
     keysList: false,
     potentialsList: false,
+    mutualConnections: false,
   });
 
   const changeScreen = (newLogin) => {

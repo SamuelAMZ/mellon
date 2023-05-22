@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 
 // comps
 import Loading from "./Loading";
+import Nothing from "./Nothing";
 
 // react query
 import { useQuery } from "react-query";
@@ -14,6 +15,8 @@ import VisibleScrensContext from "../../contexts/visibleScreens";
 
 // icons
 import { IoIosArrowBack } from "react-icons/io";
+import { CgProfile } from "react-icons/cg";
+import { AiOutlineEye, AiOutlineArrowRight } from "react-icons/ai";
 
 const SingleUser = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
@@ -32,6 +35,7 @@ const SingleUser = () => {
 
   // key mutual connections state
   const [keyMutualConnections, setKeyMutualConnections] = useState([]);
+  const [showKeyMutuals, setShowKeyMutuals] = useState(false);
 
   // get user first details
   let userLinked = null;
@@ -255,6 +259,9 @@ const SingleUser = () => {
       // update user info
       await getPaginate();
     })();
+
+    // reset page default hide mutual connection
+    setShowKeyMutuals(false);
   }, []);
 
   // keep track of the page, when it changed
@@ -267,6 +274,10 @@ const SingleUser = () => {
   }, []);
 
   const mellonBackToMenu = () => {
+    if (showKeyMutuals) {
+      return setShowKeyMutuals(false);
+    }
+
     changeScreen({
       first: false,
       menu: true,
@@ -535,6 +546,9 @@ const SingleUser = () => {
   );
 
   useEffect(() => {
+    // reset page default hide mutual connection
+    setShowKeyMutuals(false);
+
     if (!keyRelations) {
       return;
     }
@@ -579,9 +593,23 @@ const SingleUser = () => {
       }
     }
 
-    console.log(matches);
-    setKeyMutualConnections(matches);
+    // console.log(matches);
+
+    let keyUserData = [];
+    for (let xy = 0; xy < matches.length; xy++) {
+      for (let yx = 0; yx < keyRelations.length; yx++) {
+        if (matches[xy] === keyRelations[yx]._id) {
+          keyUserData.push(keyRelations[yx]);
+        }
+      }
+    }
+    setKeyMutualConnections(keyUserData);
   }, [keyRelations, mellonKeyData, mellonPotentialData]);
+
+  // redirect to profile on click
+  const redirectOnClick = (url) => {
+    chrome.runtime.sendMessage({ from: "openUserUrl", url: url });
+  };
 
   return (
     <>
@@ -694,153 +722,71 @@ const SingleUser = () => {
         }
       </div>
 
-      <div className="mellon-ext-user-details-body">
-        <>
-          {(mellonKeyLoading || mellonPotentialLoading) && <Loading />}
+      {/* normal view withour key relations */}
+      {!showKeyMutuals && (
+        <div className="mellon-ext-user-details-body">
+          <>
+            {(mellonKeyLoading || mellonPotentialLoading) && <Loading />}
 
-          {/* if it s key relation */}
-          {!mellonKeyLoading && mellonKeyData && mellonKeyData?._id && (
-            <>
-              <div className="mellon-body-detial-item">
-                <p>Goals</p>
-                <div className="dropdown dropdown-end">
-                  <div className="mellon-ext-details-circles">
-                    <p className="mellon-goal-high">{singleGoal}</p>
-                    <span
+            {/* if it s key relation */}
+            {!mellonKeyLoading && mellonKeyData && mellonKeyData?._id && (
+              <>
+                <div className="mellon-body-detial-item">
+                  <p>Goals</p>
+                  <div className="dropdown dropdown-end">
+                    <div className="mellon-ext-details-circles">
+                      <p className="mellon-goal-high">{singleGoal}</p>
+                      <span
+                        tabIndex={0}
+                        className="mellon-more-goals"
+                        onClick={() =>
+                          mellonFetchUserGoals(mellonKeyData?.Goals)
+                        }
+                      >
+                        {mellonKeyData?.Goals?.length > 1 &&
+                          singleGoal &&
+                          ` +${mellonKeyData.Goals.length - 1} goal(s)`}
+                      </span>
+                    </div>
+
+                    {/* more goals dropdown content */}
+                    <ul
                       tabIndex={0}
-                      className="mellon-more-goals"
-                      onClick={() => mellonFetchUserGoals(mellonKeyData?.Goals)}
+                      className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                     >
-                      {mellonKeyData?.Goals?.length > 1 &&
-                        singleGoal &&
-                        ` +${mellonKeyData.Goals.length - 1} goal(s)`}
-                    </span>
+                      {loadingMoreGoals && (
+                        <p className="more-goals-loading">Loading...</p>
+                      )}
+                      {!loadingMoreGoals &&
+                        moreGoalsData &&
+                        moreGoalsData?.map((elm) => {
+                          return (
+                            <li>
+                              <p>{elm}</p>
+                            </li>
+                          );
+                        })}
+                    </ul>
                   </div>
 
-                  {/* more goals dropdown content */}
-                  <ul
-                    tabIndex={0}
-                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-                  >
-                    {loadingMoreGoals && (
-                      <p className="more-goals-loading">Loading...</p>
-                    )}
-                    {!loadingMoreGoals &&
-                      moreGoalsData &&
-                      moreGoalsData?.map((elm) => {
-                        return (
-                          <li>
-                            <p>{elm}</p>
-                          </li>
-                        );
-                      })}
-                  </ul>
-                </div>
-
-                {/* <div className="dropdown dropdown-end">
+                  {/* <div className="dropdown dropdown-end">
   <label tabIndex={0} className="btn m-1">Click</label>
   <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
     <li><a>Item 1</a></li>
     <li><a>Item 2</a></li>
   </ul>
 </div> */}
-              </div>
-              <div className="mellon-body-detial-item">
-                <p>Relationship Strength</p>
-                <div className="mellon-ext-details-circles">
-                  {new Array(mellonDynamicCircles(mellonKeyData))
-                    .fill("")
-                    .map((elm, idx) => {
-                      return (
-                        <img
-                          src={
-                            mellonDynamicCircles(mellonKeyData) > 1
-                              ? chrome.runtime.getURL("/assets/circle-blue.svg")
-                              : chrome.runtime.getURL("/assets/circle-red.svg")
-                          }
-                          alt="star"
-                        />
-                      );
-                    })}
-                  {new Array(3 - mellonDynamicCircles(mellonKeyData))
-                    .fill("")
-                    .map((elm, idx) => {
-                      return (
-                        <img
-                          src={chrome.runtime.getURL("/assets/circle.svg")}
-                          alt="star"
-                        />
-                      );
-                    })}
-                </div>
-              </div>
-              <div className="mellon-body-detial-item">
-                <p>Potential Intros</p>
-                <div className="mellon-ext-details-circles">
-                  <img
-                    src={chrome.runtime.getURL("/assets/users.svg")}
-                    alt="user"
-                  />
-                  <p>0</p>
-                </div>
-              </div>
-              <div className="mellon-body-detial-item">
-                <p>Mutual Connections</p>
-                <div className="mellon-ext-details-circles">
-                  <p>
-                    {mellonZeroOrMore &&
-                      mellonKeyData["Mutual Connections"] && (
-                        <a>{mellonKeyData["Mutual Connections"].length}</a>
-                      )}
-                    {mellonZeroOrMore &&
-                      !mellonKeyData["Mutual Connections"] && (
-                        <a onClick={() => setAndRedirectMutualPage("key")}>
-                          View
-                        </a>
-                      )}
-                    {!mellonZeroOrMore && <p>0</p>}
-                  </p>
-                </div>
-              </div>
-              <div class="mellon-body-detial-item mellon-user-note">
-                <p>Notes</p>
-                <textarea
-                  class="textarea textarea-bordered"
-                  value={mellonKeyData?.Notes}
-                  rows="2"
-                  placeholder="Nothing yet"
-                  readOnly
-                ></textarea>
-              </div>
-              <div class="mellon-user-note"></div>
-            </>
-          )}
-
-          {/* if its potential intro */}
-          {!mellonPotentialLoading &&
-            mellonPotentialData &&
-            mellonPotentialData?._id && (
-              <>
-                <div className="mellon-body-detial-item">
-                  <p>Goals</p>
-                  <div className="mellon-ext-details-circles">
-                    <p className="mellon-goal-high">{singleGoal}</p>
-                  </div>
                 </div>
                 <div className="mellon-body-detial-item">
-                  <p>Priority</p>
+                  <p>Relationship Strength</p>
                   <div className="mellon-ext-details-circles">
-                    {new Array(
-                      mellonDynamicCirclesPotential(mellonPotentialData)
-                    )
+                    {new Array(mellonDynamicCircles(mellonKeyData))
                       .fill("")
                       .map((elm, idx) => {
                         return (
                           <img
                             src={
-                              mellonDynamicCirclesPotential(
-                                mellonPotentialData
-                              ) > 1
+                              mellonDynamicCircles(mellonKeyData) > 1
                                 ? chrome.runtime.getURL(
                                     "/assets/circle-blue.svg"
                                   )
@@ -852,9 +798,7 @@ const SingleUser = () => {
                           />
                         );
                       })}
-                    {new Array(
-                      3 - mellonDynamicCirclesPotential(mellonPotentialData)
-                    )
+                    {new Array(3 - mellonDynamicCircles(mellonKeyData))
                       .fill("")
                       .map((elm, idx) => {
                         return (
@@ -867,24 +811,26 @@ const SingleUser = () => {
                   </div>
                 </div>
                 <div className="mellon-body-detial-item">
-                  <p>Key Mutual Connections</p>
+                  <p>Potential Intros</p>
                   <div className="mellon-ext-details-circles">
                     <img
-                      src={chrome.runtime.getURL("/assets/users-active.svg")}
+                      src={chrome.runtime.getURL("/assets/users.svg")}
                       alt="user"
                     />
+                    <p>0</p>
+                  </div>
+                </div>
+                <div className="mellon-body-detial-item">
+                  <p>Mutual Connections</p>
+                  <div className="mellon-ext-details-circles">
                     <p>
                       {mellonZeroOrMore &&
-                        mellonPotentialData["Mutual Connections"] && (
-                          <a>{keyMutualConnections.length}</a>
+                        mellonKeyData["Mutual Connections"] && (
+                          <a>{mellonKeyData["Mutual Connections"].length}</a>
                         )}
                       {mellonZeroOrMore &&
-                        !mellonPotentialData["Mutual Connections"] && (
-                          <a
-                            onClick={() =>
-                              setAndRedirectMutualPage("potential")
-                            }
-                          >
+                        !mellonKeyData["Mutual Connections"] && (
+                          <a onClick={() => setAndRedirectMutualPage("key")}>
                             View
                           </a>
                         )}
@@ -896,7 +842,7 @@ const SingleUser = () => {
                   <p>Notes</p>
                   <textarea
                     class="textarea textarea-bordered"
-                    value={mellonPotentialData?.Notes}
+                    value={mellonKeyData?.Notes}
                     rows="2"
                     placeholder="Nothing yet"
                     readOnly
@@ -906,13 +852,105 @@ const SingleUser = () => {
               </>
             )}
 
-          {/* if it s not either */}
-          {!mellonKeyLoading &&
-            !mellonKeyData._id &&
-            !mellonPotentialLoading &&
-            !mellonPotentialData._id && (
-              <>
-                {/* <div className="mellon-body-detial-item">
+            {/* if its potential intro */}
+            {!mellonPotentialLoading &&
+              mellonPotentialData &&
+              mellonPotentialData?._id && (
+                <>
+                  <div className="mellon-body-detial-item">
+                    <p>Goals</p>
+                    <div className="mellon-ext-details-circles">
+                      <p className="mellon-goal-high">{singleGoal}</p>
+                    </div>
+                  </div>
+                  <div className="mellon-body-detial-item">
+                    <p>Priority</p>
+                    <div className="mellon-ext-details-circles">
+                      {new Array(
+                        mellonDynamicCirclesPotential(mellonPotentialData)
+                      )
+                        .fill("")
+                        .map((elm, idx) => {
+                          return (
+                            <img
+                              src={
+                                mellonDynamicCirclesPotential(
+                                  mellonPotentialData
+                                ) > 1
+                                  ? chrome.runtime.getURL(
+                                      "/assets/circle-blue.svg"
+                                    )
+                                  : chrome.runtime.getURL(
+                                      "/assets/circle-red.svg"
+                                    )
+                              }
+                              alt="star"
+                            />
+                          );
+                        })}
+                      {new Array(
+                        3 - mellonDynamicCirclesPotential(mellonPotentialData)
+                      )
+                        .fill("")
+                        .map((elm, idx) => {
+                          return (
+                            <img
+                              src={chrome.runtime.getURL("/assets/circle.svg")}
+                              alt="star"
+                            />
+                          );
+                        })}
+                    </div>
+                  </div>
+                  <div className="mellon-body-detial-item">
+                    <p>Key Mutual Connections</p>
+                    <div className="mellon-ext-details-circles">
+                      <img
+                        src={chrome.runtime.getURL("/assets/users-active.svg")}
+                        alt="user"
+                      />
+                      <p>
+                        {mellonZeroOrMore &&
+                          mellonPotentialData["Mutual Connections"] && (
+                            <a onClick={() => setShowKeyMutuals(true)}>
+                              {keyMutualConnections.length}
+                            </a>
+                          )}
+                        {mellonZeroOrMore &&
+                          !mellonPotentialData["Mutual Connections"] && (
+                            <a
+                              onClick={() =>
+                                setAndRedirectMutualPage("potential")
+                              }
+                            >
+                              View
+                            </a>
+                          )}
+                        {!mellonZeroOrMore && <p>0</p>}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mellon-body-detial-item mellon-user-note">
+                    <p>Notes</p>
+                    <textarea
+                      class="textarea textarea-bordered"
+                      value={mellonPotentialData?.Notes}
+                      rows="2"
+                      placeholder="Nothing yet"
+                      readOnly
+                    ></textarea>
+                  </div>
+                  <div class="mellon-user-note"></div>
+                </>
+              )}
+
+            {/* if it s not either */}
+            {!mellonKeyLoading &&
+              !mellonKeyData._id &&
+              !mellonPotentialLoading &&
+              !mellonPotentialData._id && (
+                <>
+                  {/* <div className="mellon-body-detial-item">
                   <p>Priority</p>
                   <div className="mellon-ext-details-circles">
                     <img
@@ -977,10 +1015,68 @@ const SingleUser = () => {
                     </p>
                   </div>
                 </div> */}
-              </>
-            )}
+                </>
+              )}
+          </>
+        </div>
+      )}
+
+      {/* view with key relations */}
+      {showKeyMutuals && (
+        <>
+          <div className="mellon-key-mutuals">
+            {/* big title */}
+            <div className="mellon-mutual-title-container">
+              <img
+                src={chrome.runtime.getURL("/assets/start-active.svg")}
+                alt="star"
+              />
+              <p>Key Mutual Connections ({keyMutualConnections.length}) </p>
+            </div>
+
+            {/* users loop */}
+            {keyMutualConnections.map((elm, idx) => {
+              return (
+                <div
+                  key={idx}
+                  className="mellon-connection-single-item mellon-mutual-profile-details"
+                  onClick={() => redirectOnClick(elm?.["Linkedin URL"])}
+                >
+                  <div className="mellon-single-details ">
+                    {/* profile */}
+                    {elm?.["Profile Photo"] ? (
+                      <img src={elm?.["Profile Photo"]} alt="profile-icon" />
+                    ) : (
+                      <CgProfile className="mellon-single-fb" />
+                    )}
+                  </div>
+
+                  {/* name */}
+                  <div className="mellon-single-name">
+                    <p>{elm?.["Full Name"]}</p>
+                    <p>{elm?.["Linkedin Description"]}</p>
+                    <div className="mellon-mutual-key-sign">
+                      <img
+                        src={chrome.runtime.getURL("/assets/start-active.svg")}
+                        alt="star"
+                      />
+                      <p>Key Relationship</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* fallback */}
+            {keyMutualConnections &&
+              keyMutualConnections.length === 0 &&
+              !keyRelationsLoading && <Nothing />}
+
+            {/* loading for search */}
+            {keyRelationsLoading && <Loading />}
+          </div>
         </>
-      </div>
+      )}
     </>
   );
 };
