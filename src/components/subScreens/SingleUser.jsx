@@ -687,7 +687,7 @@ const SingleUser = () => {
                   className="link"
                   onClick={() => mellonRedirectToMellon(mellonKeyData?._id)}
                 >
-                  View in mellon
+                  View in BuckFifty
                 </a>
 
                 <div className="mellon-ext-sep mellon-user-section"></div>
@@ -717,7 +717,7 @@ const SingleUser = () => {
                       mellonRedirectToMellon(mellonPotentialData?._id)
                     }
                   >
-                    View in mellon
+                    View in BuckFifty
                   </a>
 
                   <div className="mellon-ext-sep mellon-user-section"></div>
@@ -811,33 +811,28 @@ const SingleUser = () => {
                         })}
                     </ul>
                   </div>
-
-                  {/* <div className="dropdown dropdown-end">
-  <label tabIndex={0} className="btn m-1">Click</label>
-  <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-    <li><a>Item 1</a></li>
-    <li><a>Item 2</a></li>
-  </ul>
-</div> */}
                 </div>
                 <div className="mellon-body-detial-item">
                   <p>Relationship Strength</p>
-                  <div className="mellon-ext-details-circles">
+                  <div className="mellon-ext-details-circles mellon-ext-details-circles-circles">
                     {new Array(mellonDynamicCircles(mellonKeyData))
                       .fill("")
                       .map((elm, idx) => {
                         return (
                           <img
                             src={
-                              mellonDynamicCircles(mellonKeyData) > 1
+                              mellonDynamicCircles(mellonKeyData) >= 3
                                 ? chrome.runtime.getURL(
                                     "/assets/circle-blue.svg"
+                                  )
+                                : mellonDynamicCircles(mellonKeyData) === 2
+                                ? chrome.runtime.getURL(
+                                    "/assets/circle-yellow.svg"
                                   )
                                 : chrome.runtime.getURL(
                                     "/assets/circle-red.svg"
                                   )
                             }
-                            alt="star"
                           />
                         );
                       })}
@@ -912,7 +907,7 @@ const SingleUser = () => {
                   </div>
                   <div className="mellon-body-detial-item">
                     <p>Priority</p>
-                    <div className="mellon-ext-details-circles">
+                    <div className="mellon-ext-details-circles mellon-ext-details-circles-circles">
                       {new Array(
                         mellonDynamicCirclesPotential(mellonPotentialData)
                       )
@@ -923,15 +918,20 @@ const SingleUser = () => {
                               src={
                                 mellonDynamicCirclesPotential(
                                   mellonPotentialData
-                                ) > 1
+                                ) >= 3
                                   ? chrome.runtime.getURL(
                                       "/assets/circle-blue.svg"
+                                    )
+                                  : mellonDynamicCirclesPotential(
+                                      mellonPotentialData
+                                    ) === 2
+                                  ? chrome.runtime.getURL(
+                                      "/assets/circle-yellow.svg"
                                     )
                                   : chrome.runtime.getURL(
                                       "/assets/circle-red.svg"
                                     )
                               }
-                              alt="star"
                             />
                           );
                         })}

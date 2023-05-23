@@ -77,7 +77,7 @@ const MenuScreen = () => {
         First Degree Connections
       </button> */}
       <button className="mellon-button" onClick={mellonKeysView}>
-        Your Key Relations
+        Your Key Relationships
       </button>
       <button className="mellon-button" onClick={mellonPotentialsView}>
         Your Potential Intros

@@ -47,7 +47,7 @@ body {
   fill: #33333383;
 }
 .user-in svg {
-  fill: #356cf783 !important;
+  fill: #ec604383 !important;
 }
 .user-login h1 {
   font-size: 19px;
@@ -63,7 +63,7 @@ body {
 .user-login button {
   font-size: 15px;
   font-weight: 400;
-  background-color: #4774e8;
+  background-color: #ec6043;
   padding: 0.5rem 2rem;
   border-radius: 7px;
   color: white;
@@ -104,7 +104,7 @@ body {
   font-size: 15px;
   font-weight: 400;
   line-height: 1;
-  color: #4774e8;
+  color: #ec6043;
 }
 .clone-header img {
   width: 25px;
@@ -115,6 +115,7 @@ body {
   font-weight: 300;
   line-height: 1.4;
   text-align: center;
+  width: 70%;
 }
 
 /*  */

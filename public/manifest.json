@@ -1,11 +1,11 @@
 {
   "version": "1.0.0",
   "manifest_version": 3,
-  "name": "Mellon",
-  "description": "This is a Chrome extension for Mellon",
+  "name": "BuckFifty",
+  "description": "Surround yourself with the people who matter",
   "action": {
     "default_popup": "linkedin/templates/popup.html",
-    "default_title": "Mellon",
+    "default_title": "BuckFifty",
     "default_icon": {
       "16": "logo.png",
       "32": "logo.png",

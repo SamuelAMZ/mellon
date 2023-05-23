@@ -319,8 +319,10 @@ const FirstScreen = () => {
                 return (
                   <img
                     src={
-                      mellonDynamicCircles(mellonKeyData) > 1
+                      mellonDynamicCircles(mellonKeyData) >= 3
                         ? chrome.runtime.getURL("/assets/circle-blue.svg")
+                        : mellonDynamicCircles(mellonKeyData) === 2
+                        ? chrome.runtime.getURL("/assets/circle-yellow.svg")
                         : chrome.runtime.getURL("/assets/circle-red.svg")
                     }
                     alt="star"
@@ -340,10 +342,10 @@ const FirstScreen = () => {
           </div>
 
           {/* users */}
-          <div class="mellon-ext-user">
+          {/* <div class="mellon-ext-user">
             <img src={chrome.runtime.getURL("/assets/users.svg")} alt="user" />
             <p>0</p>
-          </div>
+          </div> */}
         </div>
       )}
 
@@ -374,8 +376,11 @@ const FirstScreen = () => {
                 return (
                   <img
                     src={
-                      mellonDynamicCirclesPotential(mellonPotentialData) > 1
+                      mellonDynamicCirclesPotential(mellonPotentialData) >= 3
                         ? chrome.runtime.getURL("/assets/circle-blue.svg")
+                        : mellonDynamicCirclesPotential(mellonPotentialData) ===
+                          2
+                        ? chrome.runtime.getURL("/assets/circle-yellow.svg")
                         : chrome.runtime.getURL("/assets/circle-red.svg")
                     }
                     alt="star"
@@ -395,13 +400,13 @@ const FirstScreen = () => {
           </div>
 
           {/* users */}
-          <div class="mellon-ext-user">
+          {/* <div class="mellon-ext-user">
             <img
               src={chrome.runtime.getURL("/assets/start-active.svg")}
               alt="user"
             />
             <p>0</p>
-          </div>
+          </div> */}
         </div>
       )}
 
@@ -420,34 +425,6 @@ const FirstScreen = () => {
               src={chrome.runtime.getURL("/assets/logo.png")}
               alt="logo"
             />
-
-            {/* star */}
-            <img src={chrome.runtime.getURL("/assets/start.svg")} alt="star" />
-
-            {/* circles */}
-            <div class="mellon-ext-first-circles">
-              <img
-                src={chrome.runtime.getURL("/assets/circle.svg")}
-                alt="star"
-              />
-              <img
-                src={chrome.runtime.getURL("/assets/circle.svg")}
-                alt="star"
-              />
-              <img
-                src={chrome.runtime.getURL("/assets/circle.svg")}
-                alt="star"
-              />
-            </div>
-
-            {/* users */}
-            <div class="mellon-ext-user">
-              <img
-                src={chrome.runtime.getURL("/assets/users.svg")}
-                alt="user"
-              />
-              <p>0</p>
-            </div>
           </div>
         )}
 

@@ -64,7 +64,7 @@ loginForm.addEventListener("submit", async (e) => {
   await loginUser(e);
 });
 settings.addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://buckfifty.com/version-test/settings" });
+  chrome.tabs.create({ url: "https://www.linkedin.com/feed/" });
 });
 header.addEventListener("click", () => {
   chrome.tabs.create({ url: "https://buckfifty.com/version-test/dashboard" });
