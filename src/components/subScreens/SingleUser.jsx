@@ -37,6 +37,10 @@ const SingleUser = () => {
   const [keyMutualConnections, setKeyMutualConnections] = useState([]);
   const [showKeyMutuals, setShowKeyMutuals] = useState(false);
 
+  // potential intro of key
+  const [keyPotentialsIntros, setKeyPotentialsIntros] = useState([]);
+  const [showKeyPotentials, setShowKeyPotentials] = useState(false);
+
   // get user first details
   let userLinked = null;
   let userToken = null;
@@ -262,6 +266,7 @@ const SingleUser = () => {
 
     // reset page default hide mutual connection
     setShowKeyMutuals(false);
+    setShowKeyPotentials(false);
   }, []);
 
   // keep track of the page, when it changed
@@ -276,6 +281,9 @@ const SingleUser = () => {
   const mellonBackToMenu = () => {
     if (showKeyMutuals) {
       return setShowKeyMutuals(false);
+    }
+    if (showKeyPotentials) {
+      return setShowKeyPotentials(false);
     }
 
     changeScreen({
@@ -593,8 +601,6 @@ const SingleUser = () => {
       }
     }
 
-    // console.log(matches);
-
     let keyUserData = [];
     for (let xy = 0; xy < matches.length; xy++) {
       for (let yx = 0; yx < keyRelations.length; yx++) {
@@ -610,6 +616,42 @@ const SingleUser = () => {
   const redirectOnClick = (url) => {
     chrome.runtime.sendMessage({ from: "openUserUrl", url: url });
   };
+
+  // get key potential intros
+  useEffect(() => {
+    if (!mellonKeyData) return;
+
+    // get potential one by one and set the state
+    (async () => {
+      let myHeaders = new Headers();
+      myHeaders.append("Authorization", "Bearer " + userDetails?.utoken);
+
+      let requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      let dataFound = [];
+
+      for (let i = 0; i < mellonKeyData["Potential Intros"].length; i++) {
+        const req = await fetch(
+          `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "_id", "constraint_type": "equals", "value": ${JSON.stringify(
+            mellonKeyData["Potential Intros"][i]
+          )} } ]`,
+          requestOptions
+        );
+
+        let result = await req.json();
+
+        if (result?.response?.results.length > 0) {
+          dataFound.push(result?.response?.results[0]);
+        }
+      }
+
+      setKeyPotentialsIntros(dataFound);
+    })();
+  }, [mellonKeyData]);
 
   return (
     <>
@@ -723,7 +765,7 @@ const SingleUser = () => {
       </div>
 
       {/* normal view withour key relations */}
-      {!showKeyMutuals && (
+      {!showKeyPotentials && !showKeyMutuals && (
         <div className="mellon-ext-user-details-body">
           <>
             {(mellonKeyLoading || mellonPotentialLoading) && <Loading />}
@@ -759,7 +801,8 @@ const SingleUser = () => {
                       )}
                       {!loadingMoreGoals &&
                         moreGoalsData &&
-                        moreGoalsData?.map((elm) => {
+                        moreGoalsData?.map((elm, idx) => {
+                          if (idx === 0) return;
                           return (
                             <li>
                               <p>{elm}</p>
@@ -817,10 +860,14 @@ const SingleUser = () => {
                       src={chrome.runtime.getURL("/assets/users.svg")}
                       alt="user"
                     />
-                    <p>0</p>
+                    <a onClick={() => setShowKeyPotentials(true)}>
+                      {mellonKeyData?.["Potential Intros"]?.length
+                        ? mellonKeyData?.["Potential Intros"]?.length
+                        : "0"}
+                    </a>
                   </div>
                 </div>
-                <div className="mellon-body-detial-item">
+                {/* <div className="mellon-body-detial-item">
                   <p>Mutual Connections</p>
                   <div className="mellon-ext-details-circles">
                     <p>
@@ -837,7 +884,7 @@ const SingleUser = () => {
                       {!mellonZeroOrMore && <p>0</p>}
                     </p>
                   </div>
-                </div>
+                </div> */}
                 <div class="mellon-body-detial-item mellon-user-note">
                   <p>Notes</p>
                   <textarea
@@ -1021,8 +1068,62 @@ const SingleUser = () => {
         </div>
       )}
 
+      {/* view with potential intro of key */}
+      {showKeyPotentials && !showKeyMutuals && (
+        <>
+          <div className="mellon-key-mutuals">
+            {/* big title */}
+            <div className="mellon-mutual-title-container">
+              <img
+                src={chrome.runtime.getURL("/assets/users-active.svg")}
+                alt="star"
+              />
+              <p>Potential Intros ({keyPotentialsIntros.length}) </p>
+            </div>
+
+            {/* users loop */}
+            {keyPotentialsIntros.map((elm, idx) => {
+              return (
+                <div
+                  key={idx}
+                  className="mellon-connection-single-item mellon-mutual-profile-details"
+                  onClick={() => redirectOnClick(elm?.["Linkedin URL"])}
+                >
+                  <div className="mellon-single-details ">
+                    {/* profile */}
+                    {elm?.["Profile Photo"] ? (
+                      <img src={elm?.["Profile Photo"]} alt="profile-icon" />
+                    ) : (
+                      <CgProfile className="mellon-single-fb" />
+                    )}
+                  </div>
+
+                  {/* name */}
+                  <div className="mellon-single-name">
+                    <p>{elm?.["Full Name"]}</p>
+                    <p>{elm?.["Linkedin Description"]}</p>
+                    <div className="mellon-mutual-key-sign">
+                      <img
+                        src={chrome.runtime.getURL("/assets/users-active.svg")}
+                        alt="star"
+                      />
+                      <p>Potential Intro</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* fallback */}
+            {keyPotentialsIntros && keyPotentialsIntros.length === 0 && (
+              <Nothing />
+            )}
+          </div>
+        </>
+      )}
+
       {/* view with key relations */}
-      {showKeyMutuals && (
+      {!showKeyPotentials && showKeyMutuals && (
         <>
           <div className="mellon-key-mutuals">
             {/* big title */}

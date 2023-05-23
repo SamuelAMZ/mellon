@@ -174,7 +174,10 @@ const AddNewKeyRelation = () => {
     }
 
     for (let i = 0; i < fieldsToAdd.length; i++) {
-      urlencoded.append(fieldsToAdd[i].field, fieldsToAdd[i].value);
+      urlencoded.append(
+        fieldsToAdd[i].field,
+        JSON.stringify(fieldsToAdd[i].value)
+      );
     }
   };
 
