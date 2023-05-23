@@ -266,6 +266,9 @@ const scrapMutualUsers = async () => {
   const mellonMutualCreateUser = async (dataBrut) => {
     let userToken = (await getDataFromLocal()).userToken;
 
+    // get target user id
+    let currentUser = await checkUserExist();
+
     let linkedinUrl = dataBrut.profileUrl
       ? mellonNormalizeLinkedinUrl(dataBrut.profileUrl.split("?")[0])
       : "";
@@ -280,6 +283,7 @@ const scrapMutualUsers = async () => {
     urlencoded.append("Is Key Relationship", "false");
     urlencoded.append("is First Degree", "true");
     urlencoded.append("Linkedin URL", linkedinUrl);
+    urlencoded.append("Potential Intros", JSON.stringify([currentUser._id]));
     urlencoded.append("Profile Photo", dataBrut.image ? dataBrut.image : "");
     urlencoded.append("Full Name", dataBrut.name ? dataBrut.name : "");
     urlencoded.append(
@@ -299,7 +303,7 @@ const scrapMutualUsers = async () => {
         "https://buckfifty.com/version-test/api/1.1/obj/connection",
         requestOptions
       );
-      let result = response.json();
+      let result = await response.json();
       return result.id;
     } catch (error) {
       console.log(error);
@@ -308,7 +312,7 @@ const scrapMutualUsers = async () => {
   };
 
   //   fetch new created user
-  const fetchNewCreatedUser = async (uid) => {
+  const fetchConnection = async (uid) => {
     let userToken = (await getDataFromLocal()).userToken;
 
     let myHeaders = new Headers();
@@ -380,7 +384,63 @@ const scrapMutualUsers = async () => {
       `${fetchUrl}/${currentUser._id}`,
       requestOptions
     );
-    let result = response.json();
+
+    // console.log("going 4");
+    // let result = await response.json();
+    console.log("done");
+  };
+
+  // update connection potential intro list
+  const mellonUpdateConnectionPotentials = async (targetCon) => {
+    // fetch connection
+    let connection = await fetchConnection(targetCon);
+
+    // update it s potential intro
+    let userToken = (await getDataFromLocal()).userToken;
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    let urlencoded = new URLSearchParams();
+
+    // new values to add
+    let valuesToAdd = ["Potential Intros", "Goals"];
+
+    // get current user
+    let currentUser = await checkUserExist();
+
+    // add the current existant records
+    addCurrentValues(connection, valuesToAdd, urlencoded);
+
+    // configure arr of mutuals to add
+    let potentialArr = [];
+    if (connection["Potential Intros"]) {
+      potentialArr = [...connection["Potential Intros"]];
+    }
+    potentialArr.push(currentUser._id);
+
+    // fix goals json parsing error
+    let goalsArr = [];
+    if (connection.Goals) {
+      goalsArr = [...connection.Goals];
+    }
+
+    // add the updated new values
+    urlencoded.append("Potential Intros", JSON.stringify(potentialArr));
+    urlencoded.append("Goals", JSON.stringify(goalsArr));
+
+    let requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    let response = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/connection/${connection._id}`,
+      requestOptions
+    );
   };
 
   // add to db
@@ -398,15 +458,15 @@ const scrapMutualUsers = async () => {
     // then add it s uid in the mutuals array ---
     if (!isMutualExist) {
       mutualsArr = await mellonMutualCreateUser(dataBrut);
-
-      //   fetch new created user
-      //   mutulUserData = await fetchNewCreatedUser(mutualsArr);
+      console.log("1");
     }
 
     // if exist, add uid to mutuals arr
     if (isMutualExist) {
       mutualsArr = isMutualExist._id;
-      //   mutulUserData = isMutualExist;
+
+      // update connection potential intro list
+      await mellonUpdateConnectionPotentials(mutualsArr);
     }
 
     // dynamicly determine the right update PUT url from local
@@ -500,7 +560,7 @@ const mellonMutualGo = async () => {
 
   if (isMellonUserExist) {
     console.log("user exist");
-    (async () => await scrapMutualUsers())();
+    await scrapMutualUsers();
   }
 };
 
