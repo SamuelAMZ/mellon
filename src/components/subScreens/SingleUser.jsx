@@ -556,6 +556,7 @@ const SingleUser = () => {
   useEffect(() => {
     // reset page default hide mutual connection
     setShowKeyMutuals(false);
+    setShowKeyPotentials(false);
 
     if (!keyRelations) {
       return;
@@ -777,7 +778,10 @@ const SingleUser = () => {
                   <p>Goals</p>
                   <div className="dropdown dropdown-end">
                     <div className="mellon-ext-details-circles">
-                      <p className="mellon-goal-high">{singleGoal}</p>
+                      <p className="mellon-goal-high">
+                        {singleGoal?.substr(0, 10)}
+                        {singleGoal?.length >= 10 && "..."}
+                      </p>
                       <span
                         tabIndex={0}
                         className="mellon-more-goals"
@@ -805,7 +809,10 @@ const SingleUser = () => {
                           if (idx === 0) return;
                           return (
                             <li>
-                              <p>{elm}</p>
+                              <p>
+                                {elm?.substr(0, 10)}
+                                {elm?.length >= 10 && "..."}
+                              </p>
                             </li>
                           );
                         })}

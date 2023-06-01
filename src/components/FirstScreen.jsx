@@ -18,9 +18,9 @@ const FirstScreen = () => {
   // check user before loading the screens
   const checkUserAndLoadScreens = async () => {
     // check user auth
-    chrome.runtime.sendMessage({ from: "auth_check" }, (data) => {
+    chrome.runtime.sendMessage({ from: "auth_check" }, (userAuth) => {
       // error
-      if (data.user === false) {
+      if (userAuth.user === false) {
         changeScreen({
           first: false,
           login: true,
@@ -32,18 +32,36 @@ const FirstScreen = () => {
         return;
       }
 
-      // if not met just show the default back page
-      if (data.user === true) {
-        // if authed
-        changeScreen({
-          first: false,
-          login: false,
-          menu: true,
-          connections: true,
-          singleUser: false,
-          connectionList: false,
-        });
-      }
+      // check if user is on a single user page
+      // if no open menu page
+      chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
+        if (
+          userAuth.user === true &&
+          data.url.split("/in/")[0] !== "https://www.linkedin.com"
+        ) {
+          changeScreen({
+            first: false,
+            login: false,
+            menu: true,
+            connections: true,
+            singleUser: false,
+            connectionList: false,
+          });
+        }
+        if (
+          userAuth.user === true &&
+          data.url.split("/in/")[0] === "https://www.linkedin.com"
+        ) {
+          changeScreen({
+            first: false,
+            login: false,
+            menu: false,
+            connections: true,
+            singleUser: true,
+            connectionList: false,
+          });
+        }
+      });
     });
   };
 
