@@ -41,6 +41,9 @@ const SingleUser = () => {
   const [keyPotentialsIntros, setKeyPotentialsIntros] = useState([]);
   const [showKeyPotentials, setShowKeyPotentials] = useState(false);
 
+  // notes state
+  const [originalNoteText, setOriginalNoteText] = useState("");
+
   // get user first details
   let userLinked = null;
   let userToken = null;
@@ -654,6 +657,102 @@ const SingleUser = () => {
     })();
   }, [mellonKeyData]);
 
+  const addCurrentValues = (data, valuesToAdd, urlencoded) => {
+    if (!data._id) {
+      return;
+    }
+
+    // loop inside the data
+    // if field is not egal to the defaults
+    // the update ones
+    // add the rest to an array
+    // filter the array
+    // append
+
+    let fieldsToAdd = [];
+
+    const check = (field) => {
+      for (let i = 0; i < valuesToAdd.length; i++) {
+        if (field === valuesToAdd[i]) {
+          return false;
+        }
+      }
+
+      if (
+        field === "Modified Date" ||
+        field === "Created Date" ||
+        field === "Created By" ||
+        field === "_id"
+      ) {
+        return false;
+      }
+
+      return true;
+    };
+
+    for (let prop in data) {
+      if (check(prop)) {
+        fieldsToAdd.push({ field: prop, value: data[prop] });
+      }
+    }
+
+    for (let i = 0; i < fieldsToAdd.length; i++) {
+      urlencoded.append(
+        fieldsToAdd[i].field,
+        JSON.stringify(fieldsToAdd[i].value)
+      );
+    }
+  };
+
+  // update notes textarea onclick
+  const updateNotesTextarea = async () => {
+    if (!mellonKeyData) return;
+
+    window.addEventListener("click", async () => {
+      // get original text
+      // get actual text
+      // compare
+      // if not diferrent return
+      // if different send PUT request for updating notes
+
+      // actual notes
+      let originalNotes = mellonKeyData?.Notes;
+      let actualNotes = document.querySelector("#mellon-notes-field").value;
+
+      // console.log(originalNotes, "-", actualNotes);
+
+      if (originalNotes.trim() === actualNotes.trim()) return;
+
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+      myHeaders.append("Authorization", "Bearer " + userToken);
+
+      var urlencoded = new URLSearchParams();
+      urlencoded.append("Notes", actualNotes.trim());
+
+      var requestOptions = {
+        method: "PATCH",
+        headers: myHeaders,
+        body: urlencoded,
+        redirect: "follow",
+      };
+
+      const response = await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/connection/${mellonKeyData?._id}`,
+        requestOptions
+      );
+    });
+  };
+  useEffect(() => {
+    if (mellonKeyData) {
+      setOriginalNoteText(mellonKeyData?.Notes);
+    }
+
+    (async () => {
+      await updateNotesTextarea();
+    })();
+  }, [mellonKeyData]);
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -859,7 +958,7 @@ const SingleUser = () => {
                   <p>Potential Intros</p>
                   <div className="mellon-ext-details-circles">
                     <img
-                      src={chrome.runtime.getURL("/assets/users.svg")}
+                      src={chrome.runtime.getURL("/assets/users-active.svg")}
                       alt="user"
                     />
                     <a onClick={() => setShowKeyPotentials(true)}>
@@ -869,32 +968,17 @@ const SingleUser = () => {
                     </a>
                   </div>
                 </div>
-                {/* <div className="mellon-body-detial-item">
-                  <p>Mutual Connections</p>
-                  <div className="mellon-ext-details-circles">
-                    <p>
-                      {mellonZeroOrMore &&
-                        mellonKeyData["Mutual Connections"] && (
-                          <a>{mellonKeyData["Mutual Connections"].length}</a>
-                        )}
-                      {mellonZeroOrMore &&
-                        !mellonKeyData["Mutual Connections"] && (
-                          <a onClick={() => setAndRedirectMutualPage("key")}>
-                            View
-                          </a>
-                        )}
-                      {!mellonZeroOrMore && <p>0</p>}
-                    </p>
-                  </div>
-                </div> */}
                 <div class="mellon-body-detial-item mellon-user-note">
                   <p>Notes</p>
                   <textarea
+                    id="mellon-notes-field"
                     class="textarea textarea-bordered"
-                    value={mellonKeyData?.Notes}
+                    value={originalNoteText}
+                    onChange={(e) => {
+                      setOriginalNoteText(e.target.value);
+                    }}
                     rows="2"
                     placeholder="Nothing yet"
-                    readOnly
                   ></textarea>
                 </div>
                 <div class="mellon-user-note"></div>
@@ -909,7 +993,11 @@ const SingleUser = () => {
                   <div className="mellon-body-detial-item">
                     <p>Goals</p>
                     <div className="mellon-ext-details-circles">
-                      <p className="mellon-goal-high">{singleGoal}</p>
+                      <p className="mellon-goal-high">
+                        {" "}
+                        {singleGoal?.substr(0, 10)}
+                        {singleGoal?.length >= 10 && "..."}
+                      </p>
                     </div>
                   </div>
                   <div className="mellon-body-detial-item">
