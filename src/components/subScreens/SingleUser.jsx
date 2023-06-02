@@ -43,6 +43,8 @@ const SingleUser = () => {
 
   // notes state
   const [originalNoteText, setOriginalNoteText] = useState("");
+  const [originalNoteTextPotential, setOriginalNoteTextPotential] =
+    useState("");
 
   // get user first details
   let userLinked = null;
@@ -657,53 +659,6 @@ const SingleUser = () => {
     })();
   }, [mellonKeyData]);
 
-  const addCurrentValues = (data, valuesToAdd, urlencoded) => {
-    if (!data._id) {
-      return;
-    }
-
-    // loop inside the data
-    // if field is not egal to the defaults
-    // the update ones
-    // add the rest to an array
-    // filter the array
-    // append
-
-    let fieldsToAdd = [];
-
-    const check = (field) => {
-      for (let i = 0; i < valuesToAdd.length; i++) {
-        if (field === valuesToAdd[i]) {
-          return false;
-        }
-      }
-
-      if (
-        field === "Modified Date" ||
-        field === "Created Date" ||
-        field === "Created By" ||
-        field === "_id"
-      ) {
-        return false;
-      }
-
-      return true;
-    };
-
-    for (let prop in data) {
-      if (check(prop)) {
-        fieldsToAdd.push({ field: prop, value: data[prop] });
-      }
-    }
-
-    for (let i = 0; i < fieldsToAdd.length; i++) {
-      urlencoded.append(
-        fieldsToAdd[i].field,
-        JSON.stringify(fieldsToAdd[i].value)
-      );
-    }
-  };
-
   // update notes textarea onclick
   const updateNotesTextarea = async () => {
     if (!mellonKeyData) return;
@@ -752,6 +707,113 @@ const SingleUser = () => {
       await updateNotesTextarea();
     })();
   }, [mellonKeyData]);
+
+  // update relationship strength key
+  const updateRelationsStrength = async (idx) => {
+    let strength = null;
+    if (idx === 0) strength = "Low";
+    if (idx === 1) strength = "Medium";
+    if (idx === 2) strength = "High";
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("Relationship Strength", strength);
+
+    var requestOptions = {
+      method: "PATCH",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    const response = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/connection/${mellonKeyData?._id}`,
+      requestOptions
+    );
+    await getPaginate();
+  };
+
+  // update notes textarea onclick potential
+  const updateNotesTextareaPotential = async () => {
+    if (!mellonPotentialData) return;
+
+    window.addEventListener("click", async () => {
+      // get original text
+      // get actual text
+      // compare
+      // if not diferrent return
+      // if different send PUT request for updating notes
+
+      // actual notes
+      let originalNotesPotential = mellonPotentialData?.Notes;
+      let actualNotesPotential = document.querySelector(
+        "#mellon-notes-field-potential"
+      ).value;
+
+      // console.log(originalNotes, "-", actualNotes);
+
+      if (originalNotesPotential.trim() === actualNotesPotential.trim()) return;
+
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+      myHeaders.append("Authorization", "Bearer " + userToken);
+
+      var urlencoded = new URLSearchParams();
+      urlencoded.append("Notes", actualNotesPotential.trim());
+
+      var requestOptions = {
+        method: "PATCH",
+        headers: myHeaders,
+        body: urlencoded,
+        redirect: "follow",
+      };
+
+      const response = await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro/${mellonPotentialData?._id}`,
+        requestOptions
+      );
+    });
+  };
+  useEffect(() => {
+    if (mellonPotentialData) {
+      setOriginalNoteTextPotential(mellonPotentialData?.Notes);
+    }
+
+    (async () => {
+      await updateNotesTextareaPotential();
+    })();
+  }, [mellonPotentialData]);
+
+  // update priority potential
+  const updatePriority = async (idx) => {
+    let strength = null;
+    if (idx === 0) strength = "Low";
+    if (idx === 1) strength = "Medium";
+    if (idx === 2) strength = "High";
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("Priority", strength);
+
+    var requestOptions = {
+      method: "PATCH",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    const response = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro/${mellonPotentialData?._id}`,
+      requestOptions
+    );
+    await getPotentialPaginate();
+  };
 
   return (
     <>
@@ -926,6 +988,9 @@ const SingleUser = () => {
                       .map((elm, idx) => {
                         return (
                           <img
+                            id={idx}
+                            key={idx}
+                            onClick={() => updateRelationsStrength(idx)}
                             src={
                               mellonDynamicCircles(mellonKeyData) >= 3
                                 ? chrome.runtime.getURL(
@@ -947,6 +1012,12 @@ const SingleUser = () => {
                       .map((elm, idx) => {
                         return (
                           <img
+                            id={mellonDynamicCircles(mellonKeyData) + idx}
+                            onClick={() =>
+                              updateRelationsStrength(
+                                mellonDynamicCircles(mellonKeyData) + idx
+                              )
+                            }
                             src={chrome.runtime.getURL("/assets/circle.svg")}
                             alt="star"
                           />
@@ -1010,6 +1081,8 @@ const SingleUser = () => {
                         .map((elm, idx) => {
                           return (
                             <img
+                              id={idx}
+                              onClick={() => updatePriority(idx)}
                               src={
                                 mellonDynamicCirclesPotential(
                                   mellonPotentialData
@@ -1037,6 +1110,14 @@ const SingleUser = () => {
                         .map((elm, idx) => {
                           return (
                             <img
+                              id={idx}
+                              onClick={() =>
+                                updatePriority(
+                                  mellonDynamicCirclesPotential(
+                                    mellonPotentialData
+                                  ) + idx
+                                )
+                              }
                               src={chrome.runtime.getURL("/assets/circle.svg")}
                               alt="star"
                             />
@@ -1075,11 +1156,14 @@ const SingleUser = () => {
                   <div class="mellon-body-detial-item mellon-user-note">
                     <p>Notes</p>
                     <textarea
+                      id="mellon-notes-field-potential"
                       class="textarea textarea-bordered"
-                      value={mellonPotentialData?.Notes}
                       rows="2"
                       placeholder="Nothing yet"
-                      readOnly
+                      value={originalNoteTextPotential}
+                      onChange={(e) => {
+                        setOriginalNoteTextPotential(e.target.value);
+                      }}
                     ></textarea>
                   </div>
                   <div class="mellon-user-note"></div>
