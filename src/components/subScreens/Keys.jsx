@@ -55,8 +55,12 @@ const Keys = () => {
   const handleConnectionsList = async () => {
     const mellonCheckProfile = async () => {
       let userToken = "";
+      let uid = "";
       chrome.storage.local.get("utoken", function (item) {
         userToken = item.utoken;
+      });
+      chrome.storage.local.get("uid", function (item) {
+        uid = item.uid;
       });
 
       await delay(200);
@@ -71,7 +75,7 @@ const Keys = () => {
       };
 
       const req = await fetch(
-        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" } ]`,
+        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" }, { "key": "Created By", "constraint_type": "equals", "value": "${uid}" }  ]`,
         requestOptions
       );
 
