@@ -148,22 +148,37 @@ const SingleUser = () => {
         redirect: "follow",
       };
 
-      let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+      let mellonUserName = userDetails?.fullName?.trim();
+
+      // let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+
+      // const req = await fetch(
+      //   `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+      //     linkedinUrl
+      //   )} }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "true" } ]`,
+      //   requestOptions
+      // );
+
+      // let result = await req.json();
+
+      // if (result?.response?.results.length > 0) {
+      //   return result?.response?.results[0];
+      // } else {
+      //   return [];
+      // }
 
       const req = await fetch(
-        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
-          linkedinUrl
-        )} }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "true" } ]`,
+        `https://buckfifty.com/version-test/api/1.1/wf/get-connection?full_name=${mellonUserName}&created_by=${userDetails?.uid}`,
         requestOptions
       );
-
       let result = await req.json();
 
-      if (result?.response?.results.length > 0) {
-        return result?.response?.results[0];
-      } else {
+      if (result?.status !== "success") return [];
+
+      if (result?.response?.Connection["Is Key Relationship"] !== true)
         return [];
-      }
+
+      return result?.response?.Connection;
     };
 
     // check if linkedin profile exist already for the current user
