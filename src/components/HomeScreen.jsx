@@ -16,6 +16,7 @@ import LoginScreen from "./auth/loginScreen";
 import Keys from "./subScreens/Keys";
 import Potentials from "./subScreens/Potentials";
 import MutualConnections from "./subScreens/MutualConnections";
+import FallbackScreen from "./FallbackScreen";
 
 const HomeScreen = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
@@ -98,6 +99,7 @@ const HomeScreen = () => {
           {screen.keysList && <Keys />}
           {screen.potentialsList && <Potentials />}
           {screen.mutualConnections && <MutualConnections />}
+          {screen.fallback && <FallbackScreen />}
         </div>
       </div>
     </>

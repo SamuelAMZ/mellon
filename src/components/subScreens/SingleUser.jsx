@@ -939,10 +939,11 @@ const SingleUser = () => {
                   <p>Goals</p>
                   <div className="dropdown dropdown-end">
                     <div className="mellon-ext-details-circles">
-                      <p className="mellon-goal-high">
+                      <p className="mellon-goal-high" title={singleGoal}>
                         {singleGoal?.substr(0, 10)}
                         {singleGoal?.length >= 10 && "..."}
                       </p>
+
                       <span
                         tabIndex={0}
                         className="mellon-more-goals"
@@ -969,7 +970,7 @@ const SingleUser = () => {
                         moreGoalsData?.map((elm, idx) => {
                           if (idx === 0) return;
                           return (
-                            <li>
+                            <li title={elm}>
                               <p>
                                 {elm?.substr(0, 10)}
                                 {elm?.length >= 10 && "..."}
@@ -1064,8 +1065,7 @@ const SingleUser = () => {
                   <div className="mellon-body-detial-item">
                     <p>Goals</p>
                     <div className="mellon-ext-details-circles">
-                      <p className="mellon-goal-high">
-                        {" "}
+                      <p className="mellon-goal-high" title={singleGoal}>
                         {singleGoal?.substr(0, 10)}
                         {singleGoal?.length >= 10 && "..."}
                       </p>

@@ -205,5 +205,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     });
   }
 
+  // open popup on click on icon on other sites
+  if (message.from === "openPopup") {
+    chrome.action.openPopup();
+  }
+
   return true;
 });

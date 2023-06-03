@@ -35,6 +35,15 @@ const FirstScreen = () => {
       // check if user is on a single user page
       // if no open menu page
       chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
+        // if login but on any other website
+        // if (userAuth.user === true && !data.url.includes("www.linkedin.com")) {
+        //   chrome.runtime.sendMessage({
+        //     from: "openPopup",
+        //   });
+        //   return;
+        // }
+
+        // if login and on other linkedin pages
         if (
           userAuth.user === true &&
           data.url.split("/in/")[0] !== "https://www.linkedin.com"
@@ -48,6 +57,8 @@ const FirstScreen = () => {
             connectionList: false,
           });
         }
+
+        // if login and on linkedin user profile page
         if (
           userAuth.user === true &&
           data.url.split("/in/")[0] === "https://www.linkedin.com"
