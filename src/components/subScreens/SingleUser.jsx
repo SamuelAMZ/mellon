@@ -775,7 +775,8 @@ const SingleUser = () => {
 
       // console.log(originalNotes, "-", actualNotes);
 
-      if (originalNotesPotential.trim() === actualNotesPotential.trim()) return;
+      if (originalNotesPotential?.trim() === actualNotesPotential?.trim())
+        return;
 
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
