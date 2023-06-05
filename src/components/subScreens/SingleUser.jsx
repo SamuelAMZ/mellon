@@ -94,6 +94,11 @@ const SingleUser = () => {
       userDetailsObj.url = data.url;
     });
 
+    // profile photo
+    userDetailsObj.profilePhoto = document.querySelector(
+      "button.pv-top-card-profile-picture img"
+    )?.src;
+
     //   get full name
     userDetailsObj.fullName = document
       .querySelector(".pv-text-details__left-panel h1")
@@ -829,6 +834,67 @@ const SingleUser = () => {
     );
     await getPotentialPaginate();
   };
+
+  // update basic info everytime
+  const mellonUpdateBasicInfo = async (data, type) => {
+    let userToken = null;
+    chrome.storage.local.get("utoken", function (item) {
+      if (item.utoken) {
+        userToken = item.utoken;
+      }
+      if (!item.utoken) {
+        userToken = null;
+      }
+    });
+    await delay(200);
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("Authorization", "Bearer " + userToken);
+
+    let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("Linkedin Description", userDetails?.actualRole);
+    urlencoded.append("Linkedin URL", linkedinUrl);
+    urlencoded.append("Profile Photo", userDetails?.profilePhoto);
+
+    var requestOptions = {
+      method: "PATCH",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    console.log(data, data?._id, type, "from idd");
+
+    // if connection
+    if (type === "connection") {
+      await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/connection/${data?._id}`,
+        requestOptions
+      );
+    }
+
+    // if potential intro
+    if (type === "potential") {
+      await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro/${data?._id}`,
+        requestOptions
+      );
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (mellonKeyData) {
+        await mellonUpdateBasicInfo(mellonKeyData, "connection");
+      }
+      if (mellonPotentialData) {
+        await mellonUpdateBasicInfo(mellonPotentialData, "potential");
+      }
+    })();
+  }, [mellonKeyData, mellonPotentialData]);
 
   return (
     <>
