@@ -22,19 +22,21 @@ const getDataFromLocal = async () => {
   let mutualUrl = null;
   let mutualType = null;
   let userToken = null;
+  let uid = null;
 
   chrome.storage.local.get(
-    ["currentMutualUrl", "currentMutualType", "utoken"],
+    ["currentMutualUrl", "currentMutualType", "utoken", "uid"],
     function (result) {
       mutualUrl = result.currentMutualUrl;
       mutualType = result.currentMutualType;
       userToken = result.utoken;
+      uid = result.uid;
     }
   );
 
   await delay(200);
 
-  return { mutualUrl, mutualType, userToken };
+  return { mutualUrl, mutualType, userToken, uid };
 };
 
 // normalize linkedin urls
@@ -234,8 +236,10 @@ const scrapMutualUsers = async () => {
   };
 
   //   check if mutual user found in DOM exist
-  const isMutualUserFoundExist = async (linkedinUrl) => {
+  const isMutualUserFoundExist = async (linkedinUrl, userNameMutual) => {
     let userToken = (await getDataFromLocal()).userToken;
+    let uid = (await getDataFromLocal()).uid;
+    let userNameMutualReady = userNameMutual?.trim();
 
     let myHeaders = new Headers();
     myHeaders.append("Authorization", "Bearer " + userToken);
@@ -246,17 +250,31 @@ const scrapMutualUsers = async () => {
       redirect: "follow",
     };
 
-    let response = await fetch(
-      `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
-        linkedinUrl
-      )} } ]`,
+    // let response = await fetch(
+    //   `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+    //     linkedinUrl
+    //   )} } ]`,
+    //   requestOptions
+    // );
+    // let result = await response.json();
+
+    // if (result.response.count > 0) {
+    //   // return true so we cam use a PUT request instead of a POST
+    //   return result.response.results[0];
+    // }
+
+    // return false;
+
+    const req = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/wf/get-connection?full_name=${userNameMutualReady}&created_by=${uid}`,
       requestOptions
     );
-    let result = await response.json();
+    let result = await req.json();
 
-    if (result.response.count > 0) {
-      // return true so we cam use a PUT request instead of a POST
-      return result.response.results[0];
+    if (result?.status !== "success") return false;
+
+    if (result?.response?.Connection) {
+      return result?.response?.Connection;
     }
 
     return false;
@@ -448,11 +466,16 @@ const scrapMutualUsers = async () => {
     let mutualsArr = "";
     let mutulUserData = null;
 
+    let userNameMutual = dataBrut?.name;
+
     // check if mutual user exist (connections) ---
     let linkedinUrl = dataBrut.profileUrl
       ? mellonNormalizeLinkedinUrl(dataBrut.profileUrl.split("?")[0])
       : "";
-    let isMutualExist = await isMutualUserFoundExist(linkedinUrl);
+    let isMutualExist = await isMutualUserFoundExist(
+      linkedinUrl,
+      userNameMutual
+    );
 
     // if not, create user (connection) new func for each
     // then add it s uid in the mutuals array ---
