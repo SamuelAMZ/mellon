@@ -16,12 +16,21 @@ const scrapFirstDegrees = async () => {
   mellonCreateBox();
 
   let userToken = null;
+  let uid = null;
   chrome.storage.local.get("utoken", function (item) {
     if (item.utoken) {
       userToken = item.utoken;
     }
     if (!item.utoken) {
       userToken = null;
+    }
+  });
+  chrome.storage.local.get("uid", function (item) {
+    if (item.uid) {
+      uid = item.uid;
+    }
+    if (!item.uid) {
+      uid = null;
     }
   });
 
@@ -84,7 +93,11 @@ const scrapFirstDegrees = async () => {
   };
 
   // check before adding to db (prevent duplicates)
-  const mellonPreventDuplicates = async (linkedinUrl, apiEndpoint) => {
+  const mellonPreventDuplicates = async (
+    linkedinUrl,
+    apiEndpoint,
+    userNameKey
+  ) => {
     let myHeaders = new Headers();
     myHeaders.append("Authorization", "Bearer " + userToken);
 
@@ -94,26 +107,42 @@ const scrapFirstDegrees = async () => {
       redirect: "follow",
     };
 
-    let response = await fetch(
-      `${apiEndpoint}?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
-        linkedinUrl
-      )} } ]`,
+    const req = await fetch(
+      `https://buckfifty.com/version-test/api/1.1/wf/get-connection?full_name=${userNameKey}&created_by=${uid}`,
       requestOptions
     );
-    let result = await response.json();
+    let result = await req.json();
 
-    if (result.response.count > 0) {
-      // return true so we cam use a PUT request instead of a POST
+    if (result?.response?.Connection && result?.response?.Connection._id) {
       return {
-        method: "PUT",
-        url: `${apiEndpoint}/${result.response.results[0]._id}`,
-        data: result.response.results[0],
+        method: "PATCH",
+        url: `${apiEndpoint}/${result?.response?.Connection._id}`,
+        data: result?.response?.Connection,
       };
     }
+
     return { method: "POST", url: apiEndpoint, data: {} };
+
+    // let response = await fetch(
+    //   `${apiEndpoint}?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
+    //     linkedinUrl
+    //   )} } ]`,
+    //   requestOptions
+    // );
+    // let result = await response.json();
+
+    // if (result.response.count > 0) {
+    //   // return true so we cam use a PATCH request instead of a POST
+    //   return {
+    //     method: "PATCH",
+    //     url: `${apiEndpoint}/${result.response.results[0]._id}`,
+    //     data: result.response.results[0],
+    //   };
+    // }
+    // return { method: "POST", url: apiEndpoint, data: {} };
   };
 
-  // add the current record that are present in the db, so the PUT request will not override them
+  // add the current record that are present in the db, so the PATCH request will not override them
   const addCurrentValues = (data, valuesToAdd, urlencoded) => {
     if (!data._id) {
       return;
@@ -164,10 +193,13 @@ const scrapFirstDegrees = async () => {
       ? mellonNormalizeLinkedinUrl(dataBrut.profileUrl.split("?")[0])
       : "";
 
+    let userNameKey = dataBrut?.name;
+
     // check if the user already exist for the current user
     let updateRecord = await mellonPreventDuplicates(
       linkedinUrl,
-      "https://buckfifty.com/version-test/api/1.1/obj/connection"
+      "https://buckfifty.com/version-test/api/1.1/obj/connection",
+      userNameKey
     );
 
     let myHeaders = new Headers();
@@ -177,17 +209,17 @@ const scrapFirstDegrees = async () => {
     let urlencoded = new URLSearchParams();
 
     // new values to add
-    let valuesToAdd = [
-      "Is Key Relationship",
-      "is First Degree",
-      "Linkedin URL",
-      "Profile Photo",
-      "Full Name",
-      "Linkedin Description",
-    ];
+    // let valuesToAdd = [
+    //   "Is Key Relationship",
+    //   "is First Degree",
+    //   "Linkedin URL",
+    //   "Profile Photo",
+    //   "Full Name",
+    //   "Linkedin Description",
+    // ];
 
-    // add the current existant records
-    addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
+    // // add the current existant records
+    // addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
 
     // add the updated new values
     urlencoded.append("Is Key Relationship", "false");
@@ -264,14 +296,32 @@ const scrapFirstDegrees = async () => {
     }
   };
 
-  // wait 1s
-  await delay(1000);
+  // wait for header class to be visible
+
+  const waitForClass = (selector) => {
+    return new Promise((resolve) => {
+      const checkExistence = () => {
+        const element = document.querySelector(selector);
+        if (element) {
+          resolve(element);
+        } else {
+          setTimeout(checkExistence, 100); // Check again after a short delay
+        }
+      };
+      checkExistence();
+    });
+  };
+  // #global-nav
+  await waitForClass("#global-nav");
+
+  // wait 1s to be sure
+  await delay(2000);
 
   const numberOfPage = getNumberOfPage();
   await paginateAndGetPeople(numberOfPage);
 
   // once done close the page
-  chrome.runtime.sendMessage({ from: "closeFirstDegreeTab" });
+  // chrome.runtime.sendMessage({ from: "closeFirstDegreeTab" });
 };
 
 window.addEventListener("load", scrapFirstDegrees);
