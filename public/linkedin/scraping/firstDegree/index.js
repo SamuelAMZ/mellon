@@ -321,7 +321,7 @@ const scrapFirstDegrees = async () => {
   await paginateAndGetPeople(numberOfPage);
 
   // once done close the page
-  // chrome.runtime.sendMessage({ from: "closeFirstDegreeTab" });
+  chrome.runtime.sendMessage({ from: "closeFirstDegreeTab" });
 };
 
 window.addEventListener("load", scrapFirstDegrees);

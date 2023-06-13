@@ -216,7 +216,9 @@ const scrapMutualUsers = async () => {
         field === "Modified Date" ||
         field === "Created Date" ||
         field === "Created By" ||
-        field === "_id"
+        field === "_id" ||
+        field === "Created By (custom)" ||
+        field === "last_contact"
       ) {
         return false;
       }
@@ -567,8 +569,24 @@ const scrapMutualUsers = async () => {
     }
   };
 
-  // wait 1s
-  await delay(1000);
+  const waitForClass = (selector) => {
+    return new Promise((resolve) => {
+      const checkExistence = () => {
+        const element = document.querySelector(selector);
+        if (element) {
+          resolve(element);
+        } else {
+          setTimeout(checkExistence, 100); // Check again after a short delay
+        }
+      };
+      checkExistence();
+    });
+  };
+  // #global-nav
+  await waitForClass("#global-nav");
+
+  // wait 1s to be sure
+  await delay(2000);
 
   const numberOfPage = getNumberOfPage();
   await paginateAndGetPeople(numberOfPage);

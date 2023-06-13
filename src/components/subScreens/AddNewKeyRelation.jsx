@@ -102,7 +102,8 @@ const AddNewKeyRelation = () => {
   const mellonPreventDuplicates = async (
     linkedinUrl,
     apiEndpoint,
-    userToken
+    userToken,
+    userLinked
   ) => {
     let myHeaders = new Headers();
     myHeaders.append("Authorization", "Bearer " + userToken);
@@ -116,6 +117,8 @@ const AddNewKeyRelation = () => {
     let response = await fetch(
       `${apiEndpoint}?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
         linkedinUrl
+      )} }, { "key": "Created By", "constraint_type": "equals", "value": ${JSON.stringify(
+        userLinked
       )} } ]`,
       requestOptions
     );
@@ -124,7 +127,7 @@ const AddNewKeyRelation = () => {
     if (result.response.count > 0) {
       // return true so we cam use a PUT request instead of a POST
       return {
-        method: "PUT",
+        method: "PATCH",
         url: `${apiEndpoint}/${result.response.results[0]._id}`,
         data: result.response.results[0],
         id: result.response.results[0]._id,
@@ -159,7 +162,9 @@ const AddNewKeyRelation = () => {
         field === "Modified Date" ||
         field === "Created Date" ||
         field === "Created By" ||
-        field === "_id"
+        field === "_id" ||
+        field === "Created By (custom)" ||
+        field === "last_contact"
       ) {
         return false;
       }
@@ -274,7 +279,8 @@ const AddNewKeyRelation = () => {
       let updateRecord = await mellonPreventDuplicates(
         linkedinUrl,
         "https://buckfifty.com/version-test/api/1.1/obj/connection",
-        userToken
+        userToken,
+        userLinked
       );
 
       let myHeaders = new Headers();
@@ -284,20 +290,20 @@ const AddNewKeyRelation = () => {
       var urlencoded = new URLSearchParams();
 
       // new values to add
-      let valuesToAdd = [
-        "Goals",
-        "Is Key Relationship",
-        "is First Degree",
-        "Linkedin URL",
-        "Profile Photo",
-        "Relationship Strength",
-        "Full Name",
-        "Notes",
-        "Linkedin Description",
-      ];
+      // let valuesToAdd = [
+      //   "Goals",
+      //   "Is Key Relationship",
+      //   "is First Degree",
+      //   "Linkedin URL",
+      //   "Profile Photo",
+      //   "Relationship Strength",
+      //   "Full Name",
+      //   "Notes",
+      //   "Linkedin Description",
+      // ];
 
-      // add the current existant records
-      addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
+      // // add the current existant records
+      // addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
 
       urlencoded.append("Goals", JSON.stringify(keyRelationInfo.goal));
       urlencoded.append("Is Key Relationship", "true");
@@ -332,7 +338,7 @@ const AddNewKeyRelation = () => {
             conId = conId.id;
           }
 
-          if (!conId && updateRecord.method === "PUT") {
+          if (!conId && updateRecord.method === "PATCH") {
             conId = updateRecord.id;
           }
 

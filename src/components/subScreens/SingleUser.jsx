@@ -367,14 +367,14 @@ const SingleUser = () => {
   // more mutual connection or not
   const detectIfMoreMutualConnection = () => {
     const mutualConnetionExist = document?.querySelector(
-      ".artdeco-card div.ph5.pb5 > a.app-aware-link"
+      ".artdeco-card div > a.app-aware-link"
     );
     if (mutualConnetionExist) {
       setMellonZeroOrMore(true);
 
       // set mutual link
       let mutuallLink = document.querySelector(
-        ".artdeco-card div.ph5.pb5 > a.app-aware-link"
+        ".artdeco-card div > a.app-aware-link"
       ).href;
       setMellonMutualLink(mutuallLink);
     } else {
@@ -536,8 +536,12 @@ const SingleUser = () => {
   const mellonGetUserKeyRelationships = async () => {
     const mellonCheckProfile = async () => {
       let userToken = "";
+      let uid = "";
       chrome.storage.local.get("utoken", function (item) {
         userToken = item.utoken;
+      });
+      chrome.storage.local.get("uid", function (item) {
+        uid = item.uid;
       });
 
       await delay(200);
@@ -552,7 +556,9 @@ const SingleUser = () => {
       };
 
       const req = await fetch(
-        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" } ]`,
+        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "is_key_relationship_boolean", "constraint_type": "equals", "value": "true" }, { "key": "Created By", "constraint_type": "equals", "value": ${JSON.stringify(
+          uid
+        )} } ]`,
         requestOptions
       );
 
@@ -1008,7 +1014,7 @@ const SingleUser = () => {
         }
       </div>
 
-      {/* normal view withour key relations */}
+      {/* (normal) view withour key relations */}
       {!showKeyPotentials && !showKeyMutuals && (
         <div className="mellon-ext-user-details-body">
           <>

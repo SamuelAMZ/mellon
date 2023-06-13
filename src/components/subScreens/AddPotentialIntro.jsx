@@ -99,7 +99,8 @@ const AddPotentialIntro = () => {
   const mellonPreventDuplicates = async (
     linkedinUrl,
     apiEndpoint,
-    userToken
+    userToken,
+    userLinked
   ) => {
     let myHeaders = new Headers();
     myHeaders.append("Authorization", "Bearer " + userToken);
@@ -113,7 +114,9 @@ const AddPotentialIntro = () => {
     let response = await fetch(
       `${apiEndpoint}?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
         linkedinUrl
-      )} } ]`,
+      )} }, { "key": "Created By", "constraint_type": "equals", "value": ${JSON.stringify(
+        userLinked
+      )} }  ]`,
       requestOptions
     );
     let result = await response.json();
@@ -121,7 +124,7 @@ const AddPotentialIntro = () => {
     if (result.response.count > 0) {
       // return true so we cam use a PUT request instead of a POST
       return {
-        method: "PUT",
+        method: "PATCH",
         url: `${apiEndpoint}/${result.response.results[0]._id}`,
         data: result.response.results[0],
         id: result.response.results[0]._id,
@@ -156,7 +159,9 @@ const AddPotentialIntro = () => {
         field === "Modified Date" ||
         field === "Created Date" ||
         field === "Created By" ||
-        field === "_id"
+        field === "_id" ||
+        field === "Created By (custom)" ||
+        field === "last_contact"
       ) {
         return false;
       }
@@ -265,7 +270,8 @@ const AddPotentialIntro = () => {
       let updateRecord = await mellonPreventDuplicates(
         linkedinUrl,
         "https://buckfifty.com/version-test/api/1.1/obj/potentialIntro",
-        userToken
+        userToken,
+        userLinked
       );
 
       let myHeaders = new Headers();
@@ -275,18 +281,18 @@ const AddPotentialIntro = () => {
       var urlencoded = new URLSearchParams();
 
       // new values to add
-      let valuesToAdd = [
-        "Goal",
-        "Linkedin URL",
-        "Profile Photo",
-        "Priority",
-        "Full Name",
-        "Notes",
-        "Linkedin Description",
-      ];
+      // let valuesToAdd = [
+      //   "Goal",
+      //   "Linkedin URL",
+      //   "Profile Photo",
+      //   "Priority",
+      //   "Full Name",
+      //   "Notes",
+      //   "Linkedin Description",
+      // ];
 
       // add the current existant records
-      addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
+      // addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
 
       urlencoded.append("Goal", keyRelationInfo.goal);
       urlencoded.append("Linkedin URL", linkedinUrl);
@@ -316,7 +322,7 @@ const AddPotentialIntro = () => {
             conId = conId.id;
           }
 
-          if (!conId && updateRecord.method === "PUT") {
+          if (!conId && updateRecord.method === "PATCH") {
             conId = updateRecord.id;
           }
 
