@@ -273,9 +273,7 @@ const scrapMutualUsers = async () => {
     );
     let result = await req.json();
 
-    if (result?.status !== "success") return false;
-
-    if (result?.response?.Connection) {
+    if (result?.response?.Connection && result?.response?.Connection._id) {
       return result?.response?.Connection;
     }
 
