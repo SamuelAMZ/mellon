@@ -9,6 +9,7 @@ import { useQuery } from "react-query";
 
 // helpers
 import postReq from "../../helpers/postReq";
+import removeExtraStrings from "../../helpers/removeExtra";
 
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
@@ -153,7 +154,7 @@ const SingleUser = () => {
         redirect: "follow",
       };
 
-      let mellonUserName = userDetails?.fullName?.trim();
+      let mellonUserName = removeExtraStrings(userDetails?.fullName?.trim());
 
       // let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
 

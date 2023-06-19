@@ -6,6 +6,9 @@ import { IoIosArrowBack } from "react-icons/io";
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
 
+// helpers
+import removeExtraStrings from "../../helpers/removeExtra";
+
 const AddPotentialIntro = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
 
@@ -186,7 +189,6 @@ const AddPotentialIntro = () => {
 
     // check form inputs
     if (!keyRelationInfo.notes) {
-      console.log("hitted");
       setKeyRelationInfo({
         ...keyRelationInfo,
         notes: "...",
@@ -298,7 +300,10 @@ const AddPotentialIntro = () => {
       urlencoded.append("Linkedin URL", linkedinUrl);
       urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
       urlencoded.append("Priority", keyRelationInfo.prority);
-      urlencoded.append("Full Name", mellonUserDetails.fullName);
+      urlencoded.append(
+        "Full Name",
+        removeExtraStrings(mellonUserDetails.fullName)
+      );
       urlencoded.append(
         "Notes",
         keyRelationInfo.notes ? keyRelationInfo.notes : "..."

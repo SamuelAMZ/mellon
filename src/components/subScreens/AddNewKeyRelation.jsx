@@ -3,6 +3,9 @@ import React, { useContext, useState, useEffect } from "react";
 // icons
 import { IoIosArrowBack } from "react-icons/io";
 
+// helpers
+import removeExtraStrings from "../../helpers/removeExtra";
+
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
 
@@ -314,7 +317,10 @@ const AddNewKeyRelation = () => {
         "Relationship Strength",
         keyRelationInfo.relationshipStrength
       );
-      urlencoded.append("Full Name", mellonUserDetails.fullName);
+      urlencoded.append(
+        "Full Name",
+        removeExtraStrings(mellonUserDetails.fullName)
+      );
       urlencoded.append(
         "Notes",
         keyRelationInfo.notes ? keyRelationInfo.notes : "..."

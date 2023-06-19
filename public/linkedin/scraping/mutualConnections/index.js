@@ -16,6 +16,63 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const removeExtraStrings = (name) => {
+  if (!name) return name;
+
+  let chuncksOfName = name.split(" ");
+
+  if (chuncksOfName.length < 1) return name;
+
+  // remove emojis
+  let filteredFromEmoji = [];
+
+  for (let i = 0; i < chuncksOfName.length; i++) {
+    const emojiRegex = /[\u{1F600}-\u{1F6FF}]/u; // Unicode range for emojis
+
+    if (!emojiRegex.test(chuncksOfName[i])) {
+      filteredFromEmoji.push(chuncksOfName[i]);
+    }
+  }
+
+  // remove credentials
+  let filteredFromCredentials = [];
+  let credentials = [
+    "MBA",
+    "CPA",
+    "PhD",
+    "MD",
+    "JD",
+    "PMP",
+    "CFA",
+    "CFP",
+    "CMA",
+    "PE",
+    "CISSP",
+    "SHRM-CP",
+    "PHR",
+    "CFE",
+    "CRISC",
+    "CISA",
+    "CFP",
+    "ITIL",
+  ];
+
+  for (let y = 0; y < filteredFromEmoji.length; y++) {
+    let isPresent = false;
+    for (let z = 0; z < credentials.length; z++) {
+      if (filteredFromEmoji[y] === credentials[z]) {
+        isPresent = true;
+      }
+    }
+
+    if (!isPresent) filteredFromCredentials.push(filteredFromEmoji[y]);
+  }
+
+  return filteredFromCredentials.length > 1
+    ? filteredFromCredentials.join(" ")
+    : "...";
+};
+
 // get from the localstorage the actual user linkedin url
 // get from localstorage if user is key or potential intro
 const getDataFromLocal = async () => {
@@ -241,7 +298,7 @@ const scrapMutualUsers = async () => {
   const isMutualUserFoundExist = async (linkedinUrl, userNameMutual) => {
     let userToken = (await getDataFromLocal()).userToken;
     let uid = (await getDataFromLocal()).uid;
-    let userNameMutualReady = userNameMutual?.trim();
+    let userNameMutualReady = removeExtraStrings(userNameMutual?.trim());
 
     let myHeaders = new Headers();
     myHeaders.append("Authorization", "Bearer " + userToken);
@@ -303,7 +360,10 @@ const scrapMutualUsers = async () => {
     urlencoded.append("Linkedin URL", linkedinUrl);
     urlencoded.append("Potential Intros", JSON.stringify([currentUser._id]));
     urlencoded.append("Profile Photo", dataBrut.image ? dataBrut.image : "");
-    urlencoded.append("Full Name", dataBrut.name ? dataBrut.name : "");
+    urlencoded.append(
+      "Full Name",
+      dataBrut.name ? removeExtraStrings(dataBrut.name) : ""
+    );
     urlencoded.append(
       "Linkedin Description",
       dataBrut.role ? dataBrut.role : "..."
@@ -466,7 +526,7 @@ const scrapMutualUsers = async () => {
     let mutualsArr = "";
     let mutulUserData = null;
 
-    let userNameMutual = dataBrut?.name;
+    let userNameMutual = removeExtraStrings(dataBrut?.name);
 
     // check if mutual user exist (connections) ---
     let linkedinUrl = dataBrut.profileUrl

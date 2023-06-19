@@ -4,6 +4,63 @@ const scrapFirstDegrees = async () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  const removeExtraStrings = (name) => {
+    if (!name) return name;
+
+    let chuncksOfName = name.split(" ");
+
+    if (chuncksOfName.length < 1) return name;
+
+    // remove emojis
+    let filteredFromEmoji = [];
+
+    for (let i = 0; i < chuncksOfName.length; i++) {
+      const emojiRegex = /[\u{1F600}-\u{1F6FF}]/u; // Unicode range for emojis
+
+      if (!emojiRegex.test(chuncksOfName[i])) {
+        filteredFromEmoji.push(chuncksOfName[i]);
+      }
+    }
+
+    // remove credentials
+    let filteredFromCredentials = [];
+    let credentials = [
+      "MBA",
+      "CPA",
+      "PhD",
+      "MD",
+      "JD",
+      "PMP",
+      "CFA",
+      "CFP",
+      "CMA",
+      "PE",
+      "CISSP",
+      "SHRM-CP",
+      "PHR",
+      "CFE",
+      "CRISC",
+      "CISA",
+      "CFP",
+      "ITIL",
+    ];
+
+    for (let y = 0; y < filteredFromEmoji.length; y++) {
+      let isPresent = false;
+      for (let z = 0; z < credentials.length; z++) {
+        if (filteredFromEmoji[y] === credentials[z]) {
+          isPresent = true;
+        }
+      }
+
+      if (!isPresent) filteredFromCredentials.push(filteredFromEmoji[y]);
+    }
+
+    return filteredFromCredentials.length > 1
+      ? filteredFromCredentials.join(" ")
+      : "...";
+  };
+
   // show little alert box on the top
   const mellonCreateBox = () => {
     let mellonAppLinkedinBody = document.querySelector("body");
@@ -193,7 +250,7 @@ const scrapFirstDegrees = async () => {
       ? mellonNormalizeLinkedinUrl(dataBrut.profileUrl.split("?")[0])
       : "";
 
-    let userNameKey = dataBrut?.name;
+    let userNameKey = removeExtraStrings(dataBrut?.name);
 
     // check if the user already exist for the current user
     let updateRecord = await mellonPreventDuplicates(
@@ -208,19 +265,6 @@ const scrapFirstDegrees = async () => {
 
     let urlencoded = new URLSearchParams();
 
-    // new values to add
-    // let valuesToAdd = [
-    //   "Is Key Relationship",
-    //   "is First Degree",
-    //   "Linkedin URL",
-    //   "Profile Photo",
-    //   "Full Name",
-    //   "Linkedin Description",
-    // ];
-
-    // // add the current existant records
-    // addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
-
     // add the updated new values
     if (updateRecord.method !== "PATCH") {
       urlencoded.append("Is Key Relationship", "false");
@@ -228,7 +272,10 @@ const scrapFirstDegrees = async () => {
     urlencoded.append("is First Degree", "true");
     urlencoded.append("Linkedin URL", linkedinUrl);
     urlencoded.append("Profile Photo", dataBrut.image ? dataBrut.image : "");
-    urlencoded.append("Full Name", dataBrut.name ? dataBrut.name : "");
+    urlencoded.append(
+      "Full Name",
+      dataBrut.name ? removeExtraStrings(dataBrut.name) : ""
+    );
     urlencoded.append(
       "Linkedin Description",
       dataBrut.role ? dataBrut.role : "..."
