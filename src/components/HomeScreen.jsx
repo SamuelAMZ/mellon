@@ -21,6 +21,8 @@ import FallbackScreen from "./FallbackScreen";
 const HomeScreen = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
 
+  let id;
+
   useEffect(() => {
     // getActualLink
     chrome.runtime.sendMessage({ from: "getActualLink" }, (data) => {
@@ -60,7 +62,18 @@ const HomeScreen = () => {
     (async () => {
       await checkUserAndLoadScreens();
     })();
-  }, []);
+  }, [
+    screen.login,
+    screen.first,
+    screen.singleUser,
+    screen.connectionList,
+    screen.menu,
+  ]);
+
+  // clearign the setInterval
+  // useEffect(() => {
+
+  // }, [screen])
 
   return (
     <>
