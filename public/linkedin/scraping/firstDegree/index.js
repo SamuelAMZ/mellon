@@ -222,7 +222,9 @@ const scrapFirstDegrees = async () => {
     // addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
 
     // add the updated new values
-    urlencoded.append("Is Key Relationship", "false");
+    if (updateRecord.method !== "PATCH") {
+      urlencoded.append("Is Key Relationship", "false");
+    }
     urlencoded.append("is First Degree", "true");
     urlencoded.append("Linkedin URL", linkedinUrl);
     urlencoded.append("Profile Photo", dataBrut.image ? dataBrut.image : "");
@@ -278,7 +280,6 @@ const scrapFirstDegrees = async () => {
         });
       });
 
-      console.log(dataFound);
       // add data to db
       for (let y = 0; y < dataFound.length; y++) {
         await addToDb(dataFound[y]);

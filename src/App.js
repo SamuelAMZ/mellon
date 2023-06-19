@@ -15,15 +15,6 @@ function App() {
 
   // loading necessary stuffs (fonts, pages checks...)
   useEffect(() => {
-    // check user auth
-    chrome.runtime.sendMessage({ from: "auth_check" }, (data) => {
-      // if not met just show the default back page
-      if (data.user === true) {
-        // if authed
-        chrome.runtime.sendMessage({ from: "openFirstDegreeTab" });
-      }
-    });
-
     // append font
     const fontLink1 = document.createElement("link");
     fontLink1.rel = "preconnect";

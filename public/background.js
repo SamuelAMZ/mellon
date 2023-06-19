@@ -65,53 +65,30 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    let alreadyExist = false;
+    // let alreadyExist = false;
     chrome.tabs.query({}, async (tabs) => {
-      // check if already scraped 1st degree of user
-      chrome.storage.local.get("alreadyFirsts", function (item) {
-        if (item.alreadyFirsts) {
-          alreadyExist = true;
-          return;
-        }
-      });
-
       await delay(200);
 
-      tabs.forEach((elm) => {
-        if (
-          elm.url.includes(
-            "https://www.linkedin.com/search/results/people/?network=%5B%22F%22%5D"
-          )
-        ) {
-          alreadyExist = true;
-          return;
+      chrome.tabs.create(
+        {
+          url: "https://www.linkedin.com/search/results/people/?network=%5B%22F%22%5D",
+          active: true,
+        },
+        (tabs) => {
+          const tabId = tabs.id;
+
+          // Execute the content script on the current tab
+          chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            files: ["linkedin/scraping/firstDegree/index.js"],
+          });
+
+          //set already scrape first degree to true
+          chrome.storage.local.set({ alreadyFirsts: true }, function () {
+            console.log("setted 1st degrees already scrapped");
+          });
         }
-      });
-
-      await delay(200);
-
-      if (!alreadyExist) {
-        chrome.tabs.create(
-          {
-            url: "https://www.linkedin.com/search/results/people/?network=%5B%22F%22%5D",
-            active: true,
-          },
-          (tabs) => {
-            const tabId = tabs.id;
-
-            // Execute the content script on the current tab
-            chrome.scripting.executeScript({
-              target: { tabId: tabId },
-              files: ["linkedin/scraping/firstDegree/index.js"],
-            });
-
-            //set already scrape first degree to true
-            chrome.storage.local.set({ alreadyFirsts: true }, function () {
-              console.log("setted 1st degrees already scrapped");
-            });
-          }
-        );
-      }
+      );
     });
   }
 

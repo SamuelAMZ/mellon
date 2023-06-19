@@ -49,9 +49,6 @@ const LoginScreen = () => {
           singleUser: false,
           connectionList: false,
         });
-
-        // start scraping 1st degrees
-        chrome.runtime.sendMessage({ from: "openFirstDegreeTab" });
       }
     });
 

@@ -55,6 +55,16 @@ const MenuScreen = () => {
       potentialsList: true,
     });
   };
+  const mellonSyncConnections = () => {
+    chrome.runtime.sendMessage({ from: "auth_check" }, (data) => {
+      // if not met just show the default back page
+      console.log(data);
+      if (data.user === true) {
+        // if authed
+        chrome.runtime.sendMessage({ from: "openFirstDegreeTab" });
+      }
+    });
+  };
 
   // hide current linkedin btn when not on user page
   useEffect(() => {
@@ -81,6 +91,9 @@ const MenuScreen = () => {
       </button>
       <button className="mellon-button" onClick={mellonPotentialsView}>
         Your Potential Intros
+      </button>
+      <button className="mellon-button" onClick={mellonSyncConnections}>
+        Sync Connections
       </button>
       {mellonShowUserBtn && (
         <button className="mellon-button" onClick={mellonUserView}>
