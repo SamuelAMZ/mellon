@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 // comps
 import Loading from "./Loading";
 import Nothing from "./Nothing";
+import GoalSelector from "./GoalSelector";
 
 // react query
 import { useQuery } from "react-query";
@@ -13,6 +14,7 @@ import removeExtraStrings from "../../helpers/removeExtra";
 
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
+import GoalsSelectorVisibleContext from "../../contexts/GoalSelectorVisible";
 
 // icons
 import { IoIosArrowBack } from "react-icons/io";
@@ -46,6 +48,11 @@ const SingleUser = () => {
   const [originalNoteText, setOriginalNoteText] = useState("");
   const [originalNoteTextPotential, setOriginalNoteTextPotential] =
     useState("");
+
+  // context for goals selector widget
+  const { goalsSelectorVisible, changeGoalsSelectorVisible } = useContext(
+    GoalsSelectorVisibleContext
+  );
 
   // get user first details
   let userLinked = null;
@@ -667,7 +674,7 @@ const SingleUser = () => {
 
       let dataFound = [];
 
-      for (let i = 0; i < mellonKeyData["Potential Intros"].length; i++) {
+      for (let i = 0; i < mellonKeyData["Potential Intros"]?.length; i++) {
         const req = await fetch(
           `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "_id", "constraint_type": "equals", "value": ${JSON.stringify(
             mellonKeyData["Potential Intros"][i]
@@ -699,9 +706,9 @@ const SingleUser = () => {
 
       // actual notes
       let originalNotes = mellonKeyData?.Notes;
-      let actualNotes = document.querySelector("#mellon-notes-field").value;
+      let actualNotes = document.querySelector("#mellon-notes-field")?.value;
 
-      // console.log(originalNotes, "-", actualNotes);
+      if (!actualNotes) return;
 
       if (originalNotes.trim() === actualNotes.trim()) return;
 
@@ -778,7 +785,7 @@ const SingleUser = () => {
       let originalNotesPotential = mellonPotentialData?.Notes;
       let actualNotesPotential = document.querySelector(
         "#mellon-notes-field-potential"
-      ).value;
+      )?.value;
 
       // console.log(originalNotes, "-", actualNotes);
 
@@ -1028,10 +1035,12 @@ const SingleUser = () => {
                   <p>Goals</p>
                   <div className="dropdown dropdown-end">
                     <div className="mellon-ext-details-circles">
-                      <p className="mellon-goal-high" title={singleGoal}>
-                        {singleGoal?.substr(0, 10)}
-                        {singleGoal?.length >= 10 && "..."}
-                      </p>
+                      {mellonKeyData?.Goals?.length >= 1 && (
+                        <p className="mellon-goal-high" title={singleGoal}>
+                          {singleGoal?.substr(0, 10)}
+                          {singleGoal?.length >= 10 && "..."}
+                        </p>
+                      )}
 
                       <span
                         tabIndex={0}
@@ -1044,6 +1053,17 @@ const SingleUser = () => {
                           singleGoal &&
                           ` +${mellonKeyData.Goals.length - 1} goal(s)`}
                       </span>
+
+                      {/* when no goal */}
+                      {(mellonKeyData?.Goals?.length === 0 ||
+                        !mellonKeyData?.Goals) && (
+                        <p
+                          className="mellon-goal-high add-mellon-goal-high"
+                          onClick={() => changeGoalsSelectorVisible(true)}
+                        >
+                          + Add Goal
+                        </p>
+                      )}
                     </div>
 
                     {/* more goals dropdown content */}
@@ -1143,6 +1163,14 @@ const SingleUser = () => {
                   ></textarea>
                 </div>
                 <div class="mellon-user-note"></div>
+
+                {/* select goals widget */}
+                {goalsSelectorVisible && (
+                  <GoalSelector
+                    strenth={mellonKeyData?.["Relationship Strength"]}
+                    refresh={getPaginate}
+                  />
+                )}
               </>
             )}
 

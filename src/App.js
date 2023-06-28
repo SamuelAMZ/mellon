@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 // contexts
 import { VisibleScrensProvider } from "./contexts/visibleScreens";
+import { GoalsSelectorVisiblePorvider } from "./contexts/GoalSelectorVisible";
 
 // components
 import FirstScreen from "./components/FirstScreen";
@@ -39,7 +40,9 @@ function App() {
     <>
       <QueryClientProvider client={client}>
         <VisibleScrensProvider>
-          <FirstScreen />
+          <GoalsSelectorVisiblePorvider>
+            <FirstScreen />
+          </GoalsSelectorVisiblePorvider>
         </VisibleScrensProvider>
       </QueryClientProvider>
     </>

@@ -20,6 +20,9 @@ const AddNewKeyRelation = () => {
   const [goalsList, setGoalsList] = useState([]);
   const [selectGoal, setSelectGoal] = useState(false);
 
+  // used goals
+  const [mellonUserUsedGoals, setMellonUserUsedGoals] = useState([]);
+
   const backToSingleUser = () => {
     changeScreen({
       first: false,
@@ -83,11 +86,100 @@ const AddNewKeyRelation = () => {
     });
   };
 
+  // get user used goals
+  const mellonGetUsedGoals = async () => {
+    chrome.storage.local.get(["utoken", "uid"], async (data) => {
+      if (!data.utoken) {
+        return console.log("error getting user token");
+      }
+      if (!data.uid) {
+        return console.log("error getting user id");
+      }
+
+      // send get goals request
+      let myHeaders = new Headers();
+      myHeaders.append("Authorization", "Bearer " + data.utoken);
+
+      let requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      let res = await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/goal?constraints=[{ "key": "_id", "constraint_type": "equals", "value": ${JSON.stringify(
+          data.uid
+        )} } ]`,
+        requestOptions
+      );
+      let result = await res.json();
+
+      if (result.response.count > 0) {
+        let mellonUsedGoalsBrut = [];
+        result.response.results.forEach((elm) => {
+          mellonUsedGoalsBrut.push({ name: elm.Name, id: elm._id });
+        });
+
+        // set goals
+        setMellonUserUsedGoals(mellonUsedGoalsBrut);
+      }
+    });
+  };
+
+  // check default goals (the ones already checked on another source)
+  const checkDefaultGoals = () => {
+    //
+    if (goalsList.length > 0) return;
+
+    // get defautl goals array
+    if (mellonUserUsedGoals.length < 1) return console.log("stoped");
+
+    let defaultGoals = [];
+    for (let z = 0; z < mellonUserUsedGoals.length; z++) {
+      if (mellonUserUsedGoals[z]._id)
+        defaultGoals.push(mellonUserUsedGoals[z]._id);
+    }
+
+    // get actual goals list
+    let mellonGoalsInputs = document.querySelector(
+      ".mellon-select-goal-container ul"
+    );
+
+    if (!mellonGoalsInputs?.children) return;
+
+    for (let i = 0; i < mellonGoalsInputs?.children?.length; i++) {
+      for (let y = 0; y < defaultGoals.length; y++) {
+        if (
+          Array.from(mellonGoalsInputs.children)
+            [i]?.querySelector(".checkbox")
+            ?.getAttribute("id")
+            ?.trim() === defaultGoals[y]
+        ) {
+          console.log("hit");
+          Array.from(mellonGoalsInputs.children)[i].querySelector(
+            ".checkbox"
+          ).checked = true;
+          setGoalsList([defaultGoals[y]]);
+        }
+      }
+    }
+
+    // verify and check the ones present in the default
+  };
+
   useEffect(() => {
     (async () => {
       await mellonGetGoals();
+      await mellonGetUsedGoals();
+
+      // fill default goals
+      checkDefaultGoals();
     })();
   }, []);
+
+  useEffect(() => {
+    checkDefaultGoals();
+  }, [selectGoal, mellonUserGoals, mellonUserUsedGoals]);
 
   // normalize linkedin urls
   const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
@@ -139,64 +231,14 @@ const AddNewKeyRelation = () => {
     return { method: "POST", url: apiEndpoint, data: {} };
   };
 
-  // add the current record that are present in the db, so the PUT request will not override them
-  const addCurrentValues = (data, valuesToAdd, urlencoded) => {
-    if (!data._id) {
-      return;
-    }
-
-    // loop inside the data
-    // if field is not egal to the defaults
-    // the update ones
-    // add the rest to an array
-    // filter the array
-    // append
-
-    let fieldsToAdd = [];
-
-    const check = (field) => {
-      for (let i = 0; i < valuesToAdd.length; i++) {
-        if (field === valuesToAdd[i]) {
-          return false;
-        }
-      }
-
-      if (
-        field === "Modified Date" ||
-        field === "Created Date" ||
-        field === "Created By" ||
-        field === "_id" ||
-        field === "Created By (custom)" ||
-        field === "last_contact"
-      ) {
-        return false;
-      }
-
-      return true;
-    };
-
-    for (let prop in data) {
-      if (check(prop)) {
-        fieldsToAdd.push({ field: prop, value: data[prop] });
-      }
-    }
-
-    for (let i = 0; i < fieldsToAdd.length; i++) {
-      urlencoded.append(
-        fieldsToAdd[i].field,
-        JSON.stringify(fieldsToAdd[i].value)
-      );
-    }
-  };
-
   // handle ading new key
   const handleNewKeyRelation = async (e) => {
     e.preventDefault();
 
     // check form inputs
-    if (goalsList.length < 1) {
-      return alert("Select at least one goal");
-    }
+    // if (goalsList.length < 1) {
+    //   return alert("Select at least one goal");
+    // }
     if (!keyRelationInfo.notes) {
       setKeyRelationInfo({
         ...keyRelationInfo,
@@ -292,23 +334,10 @@ const AddNewKeyRelation = () => {
 
       var urlencoded = new URLSearchParams();
 
-      // new values to add
-      // let valuesToAdd = [
-      //   "Goals",
-      //   "Is Key Relationship",
-      //   "is First Degree",
-      //   "Linkedin URL",
-      //   "Profile Photo",
-      //   "Relationship Strength",
-      //   "Full Name",
-      //   "Notes",
-      //   "Linkedin Description",
-      // ];
-
-      // // add the current existant records
-      // addCurrentValues(updateRecord.data, valuesToAdd, urlencoded);
-
-      urlencoded.append("Goals", JSON.stringify(keyRelationInfo.goal));
+      urlencoded.append(
+        "Goals",
+        JSON.stringify(keyRelationInfo.goal ? keyRelationInfo.goal : [])
+      );
       urlencoded.append("Is Key Relationship", "true");
       urlencoded.append("is First Degree", "true");
       urlencoded.append("Linkedin URL", linkedinUrl);
@@ -337,7 +366,15 @@ const AddNewKeyRelation = () => {
       const response = await fetch(updateRecord.url, requestOptions);
 
       if (response.status >= 200 && response.status < 400) {
+        if (!keyRelationInfo.goal || keyRelationInfo.goal.length <= 0) {
+          setAddingNewKey(false);
+          // redirect to the user page
+          backToSingleUser();
+          return;
+        }
+
         let conId = "";
+
         for (let x = 0; x < keyRelationInfo.goal.length; x++) {
           if (!conId && updateRecord.method === "POST") {
             conId = await response.json();
@@ -378,10 +415,11 @@ const AddNewKeyRelation = () => {
         return;
       }
     } catch (error) {
-      setAddingNewKey(false);
+      return setAddingNewKey(false);
     }
 
     setAddingNewKey(false);
+    backToSingleUser();
   };
 
   // choose goals widget
@@ -673,7 +711,6 @@ const AddNewKeyRelation = () => {
                   <button
                     className="mellon-button"
                     onClick={() => {
-                      console.log(keyRelationInfo, goalsList);
                       setKeyRelationInfo({
                         ...keyRelationInfo,
                         goal: goalsList,
