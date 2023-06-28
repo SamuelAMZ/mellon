@@ -104,7 +104,17 @@ const Keys = () => {
   });
 
   // redirect to profile on click
-  const redirectOnClick = (url) => {
+  const redirectOnClick = (url, uid) => {
+    if (!url) {
+      let buckUrl = `https://buckfifty.com/version-test/core_network/${uid}`;
+
+      chrome.runtime.sendMessage({
+        from: "openUserUrl",
+        url: buckUrl,
+      });
+      return;
+    }
+
     chrome.runtime.sendMessage({ from: "openUserUrl", url: url });
   };
 
@@ -121,7 +131,7 @@ const Keys = () => {
               <div
                 key={idx}
                 className="mellon-connection-single-item"
-                onClick={() => redirectOnClick(elm?.["Linkedin URL"])}
+                onClick={() => redirectOnClick(elm?.["Linkedin URL"], elm?._id)}
               >
                 <div className="mellon-single-details">
                   {/* profile */}

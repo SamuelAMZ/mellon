@@ -702,7 +702,7 @@ const SingleUser = () => {
       let originalNotes = mellonKeyData?.Notes;
       let actualNotes = document.querySelector("#mellon-notes-field")?.value;
 
-      // if (!actualNotes) return;
+      if (actualNotes === "undefined") return;
 
       if (originalNotes?.trim() === actualNotes?.trim()) return;
 
@@ -1071,7 +1071,7 @@ const SingleUser = () => {
                   </div>
                 </div>
                 <div className="mellon-body-detial-item">
-                  <p>Relationship Strength</p>
+                  <p>Relationship Quality</p>
                   <div className="mellon-ext-details-circles mellon-ext-details-circles-circles">
                     {new Array(mellonDynamicCircles(mellonKeyData))
                       .fill("")
@@ -1080,7 +1080,7 @@ const SingleUser = () => {
                           <img
                             id={idx}
                             key={idx}
-                            onClick={() => updateRelationsStrength(idx)}
+                            // onClick={() => updateRelationsStrength(idx)}
                             src={
                               mellonDynamicCircles(mellonKeyData) >= 3
                                 ? chrome.runtime.getURL(
@@ -1103,11 +1103,11 @@ const SingleUser = () => {
                         return (
                           <img
                             id={mellonDynamicCircles(mellonKeyData) + idx}
-                            onClick={() =>
-                              updateRelationsStrength(
-                                mellonDynamicCircles(mellonKeyData) + idx
-                              )
-                            }
+                            // onClick={() =>
+                            //   updateRelationsStrength(
+                            //     mellonDynamicCircles(mellonKeyData) + idx
+                            //   )
+                            // }
                             src={chrome.runtime.getURL("/assets/circle.svg")}
                             alt="star"
                           />
