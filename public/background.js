@@ -162,6 +162,25 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     );
   }
 
+  // open potential mutual connection url
+  if (message.from === "mutualActionPotential") {
+    chrome.tabs.create(
+      {
+        url: message.url,
+        active: true,
+      },
+      (tabs) => {
+        const tabId = tabs.id;
+
+        // Execute the content script on the current tab
+        chrome.scripting.executeScript({
+          target: { tabId: tabId },
+          files: ["linkedin/scraping/mutualConnections/workflowVersion.js"],
+        });
+      }
+    );
+  }
+
   // close mutual connection page
   if (message.from === "closeMutualsTab") {
     function delay(ms) {

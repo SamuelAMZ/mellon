@@ -309,21 +309,6 @@ const scrapMutualUsers = async () => {
       redirect: "follow",
     };
 
-    // let response = await fetch(
-    //   `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
-    //     linkedinUrl
-    //   )} } ]`,
-    //   requestOptions
-    // );
-    // let result = await response.json();
-
-    // if (result.response.count > 0) {
-    //   // return true so we cam use a PUT request instead of a POST
-    //   return result.response.results[0];
-    // }
-
-    // return false;
-
     const req = await fetch(
       `https://buckfifty.com/version-test/api/1.1/wf/get-connection?full_name=${userNameMutualReady}&created_by=${uid}`,
       requestOptions

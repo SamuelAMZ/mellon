@@ -27,6 +27,7 @@ const SingleUser = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [isFirstDegree, setIsFirstDegree] = useState(false);
   const [singleGoal, setSingleGoal] = useState("");
+  const [singleGoalId, setSingleGoalId] = useState("");
 
   // mutual more
   const [mellonZeroOrMore, setMellonZeroOrMore] = useState(false);
@@ -163,23 +164,6 @@ const SingleUser = () => {
 
       let mellonUserName = removeExtraStrings(userDetails?.fullName?.trim());
 
-      // let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
-
-      // const req = await fetch(
-      //   `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
-      //     linkedinUrl
-      //   )} }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "true" } ]`,
-      //   requestOptions
-      // );
-
-      // let result = await req.json();
-
-      // if (result?.response?.results.length > 0) {
-      //   return result?.response?.results[0];
-      // } else {
-      //   return [];
-      // }
-
       const req = await fetch(
         `https://buckfifty.com/version-test/api/1.1/wf/get-connection?full_name=${mellonUserName}&created_by=${userDetails?.uid}`,
         requestOptions
@@ -285,6 +269,7 @@ const SingleUser = () => {
         let result = await req.json();
 
         setSingleGoal(result?.response?.results[0].Name);
+        setSingleGoalId(result?.response?.results[0]._id);
       })();
     }
   }, [mellonKeyData, mellonPotentialData]);
@@ -508,6 +493,11 @@ const SingleUser = () => {
       userLink = data.url;
     });
 
+    // get potential intro id
+    let potentialIntroId = mellonPotentialData?._id;
+    // get potential intro goal id
+    let goalId = singleGoalId;
+
     await delay(200);
 
     // set actual user linkedin url and key or potential in localstorage
@@ -515,6 +505,8 @@ const SingleUser = () => {
       {
         currentMutualUrl: userLink,
         currentMutualType: keyOrPotential,
+        potential_id: potentialIntroId,
+        goal_id: goalId,
       },
       function () {
         console.log("set new current mutual page user");
@@ -524,6 +516,14 @@ const SingleUser = () => {
     await delay(200);
 
     // redirect to mutual url
+    if (keyOrPotential === "potential") {
+      chrome.runtime.sendMessage({
+        from: "mutualActionPotential",
+        url: mellonMutualLink,
+      });
+      return;
+    }
+
     chrome.runtime.sendMessage({
       from: "mutualAction",
       url: mellonMutualLink,
@@ -880,8 +880,6 @@ const SingleUser = () => {
       body: urlencoded,
       redirect: "follow",
     };
-
-    console.log(data, data?._id, type, "from idd");
 
     // if connection
     if (type === "connection") {
