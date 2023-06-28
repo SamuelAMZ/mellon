@@ -9,7 +9,7 @@ import removeExtraStrings from "../../helpers/removeExtra";
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
 
-const AddNewKeyRelation = () => {
+const AddNewKeyRelation = ({ refresh }) => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
 
   const [keyRelationInfo, setKeyRelationInfo] = useState(null);
@@ -232,20 +232,7 @@ const AddNewKeyRelation = () => {
   };
 
   // handle ading new key
-  const handleNewKeyRelation = async (e) => {
-    e.preventDefault();
-
-    // check form inputs
-    // if (goalsList.length < 1) {
-    //   return alert("Select at least one goal");
-    // }
-    if (!keyRelationInfo.notes) {
-      setKeyRelationInfo({
-        ...keyRelationInfo,
-        notes: "...",
-      });
-    }
-
+  const handleNewKeyRelation = async () => {
     setAddingNewKey(true);
 
     // get user rest detail
@@ -334,26 +321,26 @@ const AddNewKeyRelation = () => {
 
       var urlencoded = new URLSearchParams();
 
-      urlencoded.append(
-        "Goals",
-        JSON.stringify(keyRelationInfo.goal ? keyRelationInfo.goal : [])
-      );
+      // urlencoded.append(
+      //   "Goals",
+      //   JSON.stringify(updateRecord.data ? updateRecord?.data?.goals : [])
+      // );
       urlencoded.append("Is Key Relationship", "true");
       urlencoded.append("is First Degree", "true");
       urlencoded.append("Linkedin URL", linkedinUrl);
       urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
-      urlencoded.append(
-        "Relationship Strength",
-        keyRelationInfo.relationshipStrength
-      );
+      // urlencoded.append(
+      //   "Relationship Strength",
+      //   updateRecord.data ? updateRecord?.data["Relationship Strength"] : "Low"
+      // );
       urlencoded.append(
         "Full Name",
         removeExtraStrings(mellonUserDetails.fullName)
       );
-      urlencoded.append(
-        "Notes",
-        keyRelationInfo.notes ? keyRelationInfo.notes : "..."
-      );
+      // urlencoded.append(
+      //   "Notes",
+      //   keyRelationInfo.notes ? keyRelationInfo.notes : "..."
+      // );
       urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
       var requestOptions = {
@@ -366,42 +353,37 @@ const AddNewKeyRelation = () => {
       const response = await fetch(updateRecord.url, requestOptions);
 
       if (response.status >= 200 && response.status < 400) {
-        if (!keyRelationInfo.goal || keyRelationInfo.goal.length <= 0) {
-          setAddingNewKey(false);
-          // redirect to the user page
-          backToSingleUser();
-          return;
-        }
-
-        let conId = "";
-
-        for (let x = 0; x < keyRelationInfo.goal.length; x++) {
-          if (!conId && updateRecord.method === "POST") {
-            conId = await response.json();
-            conId = conId.id;
-          }
-
-          if (!conId && updateRecord.method === "PATCH") {
-            conId = updateRecord.id;
-          }
-
-          try {
-            await updateGoalsDataType(
-              keyRelationInfo.goal[x],
-              conId,
-              keyRelationInfo.relationshipStrength
-            );
-          } catch (error) {
-            console.log(error);
-          }
-        }
-
-        // closing the add new screen
-        setAddingNewKey(false);
-
-        // redirect to the user page
-        backToSingleUser();
-        return;
+        // refresh
+        await refresh();
+        // if (!keyRelationInfo.goal || keyRelationInfo.goal.length <= 0) {
+        //   setAddingNewKey(false);
+        //   // refresh
+        //   return;
+        // }
+        // let conId = "";
+        // for (let x = 0; x < keyRelationInfo.goal.length; x++) {
+        //   if (!conId && updateRecord.method === "POST") {
+        //     conId = await response.json();
+        //     conId = conId.id;
+        //   }
+        //   if (!conId && updateRecord.method === "PATCH") {
+        //     conId = updateRecord.id;
+        //   }
+        //   try {
+        //     await updateGoalsDataType(
+        //       keyRelationInfo.goal[x],
+        //       conId,
+        //       keyRelationInfo.relationshipStrength
+        //     );
+        //   } catch (error) {
+        //     console.log(error);
+        //   }
+        // }
+        // // closing the add new screen
+        // setAddingNewKey(false);
+        // // redirect to the user page
+        // backToSingleUser();
+        // return;
       }
 
       if (result.status !== "success") {
@@ -419,7 +401,6 @@ const AddNewKeyRelation = () => {
     }
 
     setAddingNewKey(false);
-    backToSingleUser();
   };
 
   // choose goals widget
@@ -605,136 +586,17 @@ const AddNewKeyRelation = () => {
     return result;
   };
 
-  return (
-    <div className="mellon-add-new-key-relation-wrapper">
-      <div className="mellon-key-header">
-        <label className="back-btn" onClick={backToSingleUser}>
-          <IoIosArrowBack /> Back
-        </label>
-        <h3>Add new Key Relationship</h3>
-        <p>Add {mellonGetUserName()} as Key relationship</p>
-      </div>
-      <form onSubmit={handleNewKeyRelation}>
-        <p className="mellon-new-key-error"></p>
-        <div className="mellon-form-group">
-          <label htmlFor="mellon-goals">Goals</label>
-          <div className="mellon-select-container">
-            <div
-              className="mellon-select mellon-select-goal"
-              onClick={() => setSelectGoal(true)}
-            >
-              {goalsList && goalsList.length > 0
-                ? `${goalsList.length} goal(s) selected`
-                : "Select goals"}
-            </div>
-          </div>
-        </div>
-
-        <div className="mellon-form-group">
-          <label htmlFor="mellon-goals">Relationship Strength</label>
-          <div className="mellon-select-container">
-            <select
-              className="mellon-select"
-              required
-              onChange={(e) => {
-                setKeyRelationInfo({
-                  ...keyRelationInfo,
-                  relationshipStrength: e.target.value,
-                });
-              }}
-            >
-              <option value="" selected disabled>
-                Select an option
-              </option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-        </div>
-        <div className="mellon-form-group">
-          <label htmlFor="mellon-goals">Notes</label>
-          <textarea
-            placeholder="Optional note"
-            onChange={(e) => {
-              setKeyRelationInfo({
-                ...keyRelationInfo,
-                notes: e.target.value,
-              });
-            }}
-          ></textarea>
-        </div>
-
-        <div className="mellon-form-group">
-          {addingNewKey && <button className="mellon-button">Adding...</button>}
-          {!addingNewKey && <button className="mellon-button">Add new</button>}
-        </div>
-      </form>
-
-      {/* goals list view */}
-      {selectGoal && (
-        <>
-          <div className="mellon-select-goal-container">
-            {/* list */}
-            <ul>
-              {mellonUserGoals.length >= 1 ? (
-                <>
-                  {mellonUserGoals.map((elm, idx) => {
-                    return (
-                      <>
-                        {checkedChecker(elm.id) ? (
-                          <li key={idx}>
-                            <input
-                              type="checkbox"
-                              className="checkbox checkbox-lg"
-                              id={elm.id}
-                              checked
-                              onChange={chooseGoals}
-                            />
-                            <p className="mellon-labels">{elm.name}</p>
-                          </li>
-                        ) : (
-                          <li key={idx}>
-                            <input
-                              type="checkbox"
-                              className="checkbox checkbox-lg"
-                              id={elm.id}
-                              onChange={chooseGoals}
-                            />
-                            <p className="mellon-labels">{elm.name}</p>
-                          </li>
-                        )}
-                      </>
-                    );
-                  })}
-
-                  <button
-                    className="mellon-button"
-                    onClick={() => {
-                      setKeyRelationInfo({
-                        ...keyRelationInfo,
-                        goal: goalsList,
-                      });
-                      setSelectGoal(false);
-                    }}
-                  >
-                    Done
-                  </button>
-                </>
-              ) : (
-                <p className="mellon-no-goal">No goal yet...</p>
-              )}
-            </ul>
-
-            {/* done btn */}
-          </div>
-          <div
-            className="mellon-select-goal-container-back"
-            onClick={() => setSelectGoal(false)}
-          ></div>
-        </>
-      )}
-    </div>
+  return addingNewKey ? (
+    <button className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn">
+      Adding...
+    </button>
+  ) : (
+    <button
+      className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
+      onClick={handleNewKeyRelation}
+    >
+      + Add Key Relationship
+    </button>
   );
 };
 

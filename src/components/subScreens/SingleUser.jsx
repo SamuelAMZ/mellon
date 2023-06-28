@@ -4,6 +4,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Loading from "./Loading";
 import Nothing from "./Nothing";
 import GoalSelector from "./GoalSelector";
+import AddNewKeyRelation from "./AddNewKeyRelation";
 
 // react query
 import { useQuery } from "react-query";
@@ -317,15 +318,8 @@ const SingleUser = () => {
 
   // add key relation
   const addNewRelationView = () => {
-    changeScreen({
-      first: false,
-      menu: false,
-      connections: true,
-      singleUser: false,
-      connectionList: false,
-      newKey: true,
-      potential: false,
-    });
+    // add user to keys
+    // refresh
   };
 
   // add potential intro
@@ -708,16 +702,16 @@ const SingleUser = () => {
       let originalNotes = mellonKeyData?.Notes;
       let actualNotes = document.querySelector("#mellon-notes-field")?.value;
 
-      if (!actualNotes) return;
+      // if (!actualNotes) return;
 
-      if (originalNotes.trim() === actualNotes.trim()) return;
+      if (originalNotes?.trim() === actualNotes?.trim()) return;
 
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
       myHeaders.append("Authorization", "Bearer " + userToken);
 
       var urlencoded = new URLSearchParams();
-      urlencoded.append("Notes", actualNotes.trim());
+      urlencoded.append("Notes", actualNotes?.trim());
 
       var requestOptions = {
         method: "PATCH",
@@ -990,20 +984,8 @@ const SingleUser = () => {
               !mellonKeyData?._id &&
               !mellonPotentialData?._id && (
                 <>
-                  {/* <div className="mellon-key-or-not">
-                    <img
-                      src={chrome.runtime.getURL("/assets/start.svg")}
-                      alt="star"
-                    />
-                    <p>Connection (Not a Key Relationship)</p>
-                  </div> */}
                   {isFirstDegree ? (
-                    <button
-                      className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
-                      onClick={addNewRelationView}
-                    >
-                      + Add Key Relationship
-                    </button>
+                    <AddNewKeyRelation refresh={getPaginate} />
                   ) : (
                     <button
                       className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
@@ -1282,80 +1264,6 @@ const SingleUser = () => {
                     ></textarea>
                   </div>
                   <div class="mellon-user-note"></div>
-                </>
-              )}
-
-            {/* if it s not either */}
-            {!mellonKeyLoading &&
-              !mellonKeyData._id &&
-              !mellonPotentialLoading &&
-              !mellonPotentialData._id && (
-                <>
-                  {/* <div className="mellon-body-detial-item">
-                  <p>Priority</p>
-                  <div className="mellon-ext-details-circles">
-                    <img
-                      src={chrome.runtime.getURL("/assets/circle.svg")}
-                      alt="star"
-                    />
-                    <img
-                      src={chrome.runtime.getURL("/assets/circle.svg")}
-                      alt="star"
-                    />
-                    <img
-                      src={chrome.runtime.getURL("/assets/circle.svg")}
-                      alt="star"
-                    />
-                  </div>
-                </div>
-                <div className="mellon-body-detial-item">
-                  <p>Relationship Strength</p>
-                  <div className="mellon-ext-details-circles">
-                    <img
-                      src={chrome.runtime.getURL("/assets/circle.svg")}
-                      alt="star"
-                    />
-                    <img
-                      src={chrome.runtime.getURL("/assets/circle.svg")}
-                      alt="star"
-                    />
-                    <img
-                      src={chrome.runtime.getURL("/assets/circle.svg")}
-                      alt="star"
-                    />
-                  </div>
-                </div>
-                <div className="mellon-body-detial-item">
-                  <p>Potential Intros</p>
-                  <div className="mellon-ext-details-circles">
-                    <img
-                      src={chrome.runtime.getURL("/assets/users.svg")}
-                      alt="user"
-                    />
-                    <p>0</p>
-                  </div>
-                </div>
-                <div className="mellon-body-detial-item">
-                  <p>Mutual Connections</p>
-                  <div className="mellon-ext-details-circles">
-                    <p>
-                      {mellonZeroOrMore ? (
-                        <a
-                          onClick={() => {
-                            chrome.runtime.sendMessage({
-                              from: "openUserUrl",
-                              url: mellonMutualLink,
-                            });
-                          }}
-                        >
-                          More
-                        </a>
-                      ) : (
-                        "0"
-                      )}
-                    </p>
-                  </div>
-                </div> */}
                 </>
               )}
           </>
