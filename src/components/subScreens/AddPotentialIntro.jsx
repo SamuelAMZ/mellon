@@ -12,7 +12,7 @@ import removeExtraStrings from "../../helpers/removeExtra";
 const AddPotentialIntro = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
 
-  const [keyRelationInfo, setKeyRelationInfo] = useState(null);
+  const [keyRelationInfo, setKeyRelationInfo] = useState({ prority: "Medium" });
   const [addingNewKey, setAddingNewKey] = useState(false);
   const [mellonUserGoals, setMellonUserGoals] = useState([]);
 
@@ -520,6 +520,39 @@ const AddPotentialIntro = () => {
     return result;
   };
 
+  // priority selector
+  const prioritySelector = (e, num) => {
+    let parentElm = e.target.parentElement;
+
+    if (num === 1) {
+      parentElm.children[0].className = "active1";
+      parentElm.children[1].className = "";
+      parentElm.children[2].className = "";
+      setKeyRelationInfo({
+        ...keyRelationInfo,
+        prority: "Low",
+      });
+    }
+    if (num === 2) {
+      parentElm.children[0].className = "active2";
+      parentElm.children[1].className = "active2";
+      parentElm.children[2].className = "";
+      setKeyRelationInfo({
+        ...keyRelationInfo,
+        prority: "Medium",
+      });
+    }
+    if (num === 3) {
+      parentElm.children[0].className = "active3";
+      parentElm.children[1].className = "active3";
+      parentElm.children[2].className = "active3";
+      setKeyRelationInfo({
+        ...keyRelationInfo,
+        prority: "High",
+      });
+    }
+  };
+
   return (
     <div className="mellon-add-new-key-relation-wrapper">
       <div className="mellon-key-header">
@@ -535,27 +568,6 @@ const AddPotentialIntro = () => {
           <label htmlFor="mellon-goals">Goals</label>
 
           <div className="mellon-select-container">
-            {/* <select
-              className="mellon-select"
-              onChange={(e) => {
-                setKeyRelationInfo({
-                  ...keyRelationInfo,
-                  goal: e.target.value,
-                });
-              }}
-              required
-            >
-              <option disabled selected>
-                Select a goal
-              </option>
-              {mellonUserGoals.map((elm, idx) => {
-                return (
-                  <option key={idx} value={elm.id}>
-                    {elm.name}
-                  </option>
-                );
-              })}
-            </select> */}
             <div
               className="mellon-select mellon-fake-selector"
               onClick={() => changeGoalsSelectorVisible(true)}
@@ -607,7 +619,7 @@ const AddPotentialIntro = () => {
                             changeGoalsSelectorVisible(false);
                           }}
                         >
-                          Select
+                          Close
                         </button>
                       </>
                     ) : (
@@ -628,7 +640,7 @@ const AddPotentialIntro = () => {
         <div className="mellon-form-group">
           <label htmlFor="mellon-goals">Priority</label>
           <div className="mellon-select-container">
-            <select
+            {/* <select
               className="mellon-select"
               onChange={(e) => {
                 setKeyRelationInfo({
@@ -644,7 +656,18 @@ const AddPotentialIntro = () => {
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
               <option value="High">High</option>
-            </select>
+            </select> */}
+            <ul className="mellon-priority-selector">
+              <span
+                className="active2"
+                onClick={(e) => prioritySelector(e, 1)}
+              ></span>
+              <span
+                className="active2"
+                onClick={(e) => prioritySelector(e, 2)}
+              ></span>
+              <span onClick={(e) => prioritySelector(e, 3)}></span>
+            </ul>
           </div>
         </div>
         <div className="mellon-form-group">
