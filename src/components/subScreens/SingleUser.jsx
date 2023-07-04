@@ -146,7 +146,7 @@ const SingleUser = () => {
       url = url.slice(0, -1);
     }
 
-    return url;
+    return encodeURIComponent(url);
   };
 
   // get key relations details
@@ -216,8 +216,6 @@ const SingleUser = () => {
       );
 
       let result = await req.json();
-
-      console.log(result?.response?.results[0], "res");
 
       if (result?.response?.results.length > 0) {
         return result?.response?.results[0];
@@ -912,8 +910,10 @@ const SingleUser = () => {
 
         <div className="mellon-single-user-setails">
           <h2>
-            {userDetails && userDetails?.fullName?.substr(0, 30)}
-            {userDetails && userDetails?.fullName?.length >= 30 && "..."}
+            {userDetails &&
+              removeExtraStrings(userDetails?.fullName?.substr(0, 30))}
+            {userDetails &&
+              removeExtraStrings(userDetails?.fullName?.length >= 30 && "...")}
           </h2>
           <h3>
             {userDetails && userDetails?.actualRole?.substr(0, 28)}

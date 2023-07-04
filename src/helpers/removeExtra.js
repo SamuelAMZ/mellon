@@ -1,19 +1,19 @@
 // will help with removing extra trings like MBA, Phd... and emojis
 const removeExtraStrings = (name) => {
-  let chuncksOfName = name.split(" ");
-
-  if (chuncksOfName.length < 1) return name;
+  // remove credential after the comma
+  // let nameWithoutCredential = name.split(",")[1];
+  if (!name) return;
 
   // remove emojis
-  let filteredFromEmoji = [];
+  let filteredFromEmoji = name
+    ?.replace(
+      /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
+      ""
+    )
+    ?.trim();
 
-  for (let i = 0; i < chuncksOfName.length; i++) {
-    const emojiRegex = /[\u{1F600}-\u{1F6FF}]/u; // Unicode range for emojis
-
-    if (!emojiRegex.test(chuncksOfName[i])) {
-      filteredFromEmoji.push(chuncksOfName[i]);
-    }
-  }
+  let filteredFromEmojiArr = filteredFromEmoji.split(" ");
+  if (filteredFromEmojiArr.length < 1) return filteredFromEmoji;
 
   // remove credentials
   let filteredFromCredentials = [];
@@ -38,20 +38,26 @@ const removeExtraStrings = (name) => {
     "ITIL",
   ];
 
-  for (let y = 0; y < filteredFromEmoji.length; y++) {
+  for (let y = 0; y < filteredFromEmojiArr.length; y++) {
     let isPresent = false;
     for (let z = 0; z < credentials.length; z++) {
-      if (filteredFromEmoji[y] === credentials[z]) {
+      if (filteredFromEmojiArr[y] === credentials[z]) {
         isPresent = true;
       }
     }
 
-    if (!isPresent) filteredFromCredentials.push(filteredFromEmoji[y]);
+    if (!isPresent) filteredFromCredentials.push(filteredFromEmojiArr[y]);
   }
 
-  return filteredFromCredentials.length > 1
-    ? filteredFromCredentials.join(" ")
-    : "...";
+  let actualName =
+    filteredFromCredentials.length > 1
+      ? filteredFromCredentials.join(" ")
+      : "...";
+
+  // remove comma
+  let nameWithoutComma = actualName.replaceAll(",", "");
+
+  return nameWithoutComma;
 };
 
 export default removeExtraStrings;

@@ -92,9 +92,9 @@ const MenuScreen = () => {
       <button className="mellon-button" onClick={mellonPotentialsView}>
         Your Potential Intros
       </button>
-      <button className="mellon-button" onClick={mellonSyncConnections}>
+      {/* <button className="mellon-button" onClick={mellonSyncConnections}>
         Sync Connections
-      </button>
+      </button> */}
       {mellonShowUserBtn && (
         <button className="mellon-button" onClick={mellonUserView}>
           Current User Profile

@@ -169,7 +169,7 @@ const FirstScreen = () => {
       url = url.slice(0, -1);
     }
 
-    return url;
+    return encodeURIComponent(url);
   };
 
   // get key relations details
