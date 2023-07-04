@@ -640,23 +640,6 @@ const AddPotentialIntro = () => {
         <div className="mellon-form-group">
           <label htmlFor="mellon-goals">Priority</label>
           <div className="mellon-select-container">
-            {/* <select
-              className="mellon-select"
-              onChange={(e) => {
-                setKeyRelationInfo({
-                  ...keyRelationInfo,
-                  prority: e.target.value,
-                });
-              }}
-              required
-            >
-              <option value="" selected disabled>
-                Select an option
-              </option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select> */}
             <ul className="mellon-priority-selector">
               <span
                 className="active2"

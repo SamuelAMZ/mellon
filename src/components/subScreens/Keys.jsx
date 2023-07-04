@@ -106,7 +106,7 @@ const Keys = () => {
   // redirect to profile on click
   const redirectOnClick = (url, uid) => {
     if (!url) {
-      let buckUrl = `https://buckfifty.com/version-test/core_network/${uid}`;
+      let buckUrl = `https://buckfifty.com/version-test/core-network/${uid}`;
 
       chrome.runtime.sendMessage({
         from: "openUserUrl",

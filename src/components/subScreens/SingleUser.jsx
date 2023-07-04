@@ -521,7 +521,7 @@ const SingleUser = () => {
 
   // redirect to mellon
   const mellonRedirectToMellon = async (uid) => {
-    let url = `https://buckfifty.com/version-test/core_network/${uid}`;
+    let url = `https://buckfifty.com/version-test/core-network/${uid}`;
 
     chrome.runtime.sendMessage({
       from: "openUserUrl",
