@@ -352,7 +352,7 @@ const GoalSelector = ({ strenth, refresh }) => {
       url = url.slice(0, -1);
     }
 
-    return encodeURIComponent(url);
+    return url;
   };
 
   // check before adding to db (prevent duplicates)

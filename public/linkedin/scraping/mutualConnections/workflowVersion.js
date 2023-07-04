@@ -117,7 +117,7 @@ const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
     url = url.slice(0, -1);
   }
 
-  return encodeURIComponent(url);
+  return url;
 };
 
 // sendUser to workflow for process

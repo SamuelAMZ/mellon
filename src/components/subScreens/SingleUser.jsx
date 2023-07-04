@@ -146,7 +146,7 @@ const SingleUser = () => {
       url = url.slice(0, -1);
     }
 
-    return encodeURIComponent(url);
+    return url;
   };
 
   // get key relations details
@@ -206,7 +206,9 @@ const SingleUser = () => {
         redirect: "follow",
       };
 
-      let linkedinUrl = mellonNormalizeLinkedinUrl(userDetails?.url);
+      let linkedinUrl = encodeURIComponent(
+        mellonNormalizeLinkedinUrl(userDetails?.url)
+      );
 
       const req = await fetch(
         `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro?constraints=[ { "key": "Linkedin URL", "constraint_type": "equals", "value": ${JSON.stringify(
@@ -314,12 +316,6 @@ const SingleUser = () => {
     });
   };
 
-  // add key relation
-  const addNewRelationView = () => {
-    // add user to keys
-    // refresh
-  };
-
   // add potential intro
   const addPotentialIntroView = () => {
     changeScreen({
@@ -352,14 +348,14 @@ const SingleUser = () => {
   // more mutual connection or not
   const detectIfMoreMutualConnection = () => {
     const mutualConnetionExist = document?.querySelector(
-      ".artdeco-card div > a.app-aware-link"
+      ".artdeco-card div > a.app-aware-link.inline-flex"
     );
     if (mutualConnetionExist) {
       setMellonZeroOrMore(true);
 
       // set mutual link
       let mutuallLink = document.querySelector(
-        ".artdeco-card div > a.app-aware-link"
+        ".artdeco-card div > a.app-aware-link.inline-flex"
       ).href;
       setMellonMutualLink(mutuallLink);
     } else {

@@ -113,7 +113,7 @@ const mellonNormalizeLinkedinUrl = (linkedinUrlBrut) => {
     url = url.slice(0, -1);
   }
 
-  return encodeURIComponent(url);
+  return url;
 };
 
 // check if user exist or not (potential intro or key)
