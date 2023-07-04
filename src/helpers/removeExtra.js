@@ -18,6 +18,7 @@ const removeExtraStrings = (name) => {
   // remove credentials
   let filteredFromCredentials = [];
   let credentials = [
+    "DR",
     "MBA",
     "CPA",
     "PhD",
@@ -41,7 +42,14 @@ const removeExtraStrings = (name) => {
   for (let y = 0; y < filteredFromEmojiArr.length; y++) {
     let isPresent = false;
     for (let z = 0; z < credentials.length; z++) {
-      if (filteredFromEmojiArr[y] === credentials[z]) {
+      if (
+        filteredFromEmojiArr[y]?.toLowerCase() ===
+          credentials[z]?.toLowerCase() ||
+        filteredFromEmojiArr[y]?.toLowerCase() ===
+          `${credentials[z]?.toLowerCase()}.` ||
+        filteredFromEmojiArr[y]?.toLowerCase() ===
+          `${credentials[z]?.toLowerCase()},`
+      ) {
         isPresent = true;
       }
     }
@@ -55,7 +63,7 @@ const removeExtraStrings = (name) => {
       : "...";
 
   // remove comma
-  let nameWithoutComma = actualName.replaceAll(",", "");
+  let nameWithoutComma = actualName.replaceAll(",", "").replaceAll(".", "");
 
   return nameWithoutComma;
 };

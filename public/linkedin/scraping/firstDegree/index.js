@@ -23,6 +23,7 @@ const scrapFirstDegrees = async () => {
     // remove credentials
     let filteredFromCredentials = [];
     let credentials = [
+      "DR",
       "MBA",
       "CPA",
       "PhD",
@@ -46,7 +47,14 @@ const scrapFirstDegrees = async () => {
     for (let y = 0; y < filteredFromEmojiArr.length; y++) {
       let isPresent = false;
       for (let z = 0; z < credentials.length; z++) {
-        if (filteredFromEmojiArr[y] === credentials[z]) {
+        if (
+          filteredFromEmojiArr[y]?.toLowerCase() ===
+            credentials[z]?.toLowerCase() ||
+          filteredFromEmojiArr[y]?.toLowerCase() ===
+            `${credentials[z]?.toLowerCase()}.` ||
+          filteredFromEmojiArr[y]?.toLowerCase() ===
+            `${credentials[z]?.toLowerCase()},`
+        ) {
           isPresent = true;
         }
       }
@@ -60,7 +68,7 @@ const scrapFirstDegrees = async () => {
         : "...";
 
     // remove comma
-    let nameWithoutComma = actualName.replaceAll(",", "");
+    let nameWithoutComma = actualName.replaceAll(",", "").replaceAll(".", "");
 
     return nameWithoutComma;
   };

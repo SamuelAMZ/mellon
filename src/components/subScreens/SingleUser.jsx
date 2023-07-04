@@ -105,9 +105,10 @@ const SingleUser = () => {
     });
 
     // profile photo
-    userDetailsObj.profilePhoto = document.querySelector(
+    let photo = document.querySelector(
       "button.pv-top-card-profile-picture img"
     )?.src;
+    userDetailsObj.profilePhoto = photo ? photo : "";
 
     //   get full name
     userDetailsObj.fullName = document

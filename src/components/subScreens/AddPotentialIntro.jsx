@@ -16,6 +16,9 @@ const AddPotentialIntro = () => {
   const [addingNewKey, setAddingNewKey] = useState(false);
   const [mellonUserGoals, setMellonUserGoals] = useState([]);
 
+  // goal
+  const [goalsSelectorVisible, changeGoalsSelectorVisible] = useState(false);
+
   const backToSingleUser = () => {
     changeScreen({
       first: false,
@@ -247,9 +250,10 @@ const AddPotentialIntro = () => {
         ?.textContent?.trim();
 
       // profile photo
-      userDetailsObj.profilePhoto = document.querySelector(
+      let photo = document.querySelector(
         "button.pv-top-card-profile-picture img"
       )?.src;
+      userDetailsObj.profilePhoto = photo ? photo : "";
 
       // is first degree
       let isOrNot =
@@ -531,7 +535,7 @@ const AddPotentialIntro = () => {
           <label htmlFor="mellon-goals">Goals</label>
 
           <div className="mellon-select-container">
-            <select
+            {/* <select
               className="mellon-select"
               onChange={(e) => {
                 setKeyRelationInfo({
@@ -551,7 +555,74 @@ const AddPotentialIntro = () => {
                   </option>
                 );
               })}
-            </select>
+            </select> */}
+            <div
+              className="mellon-select mellon-fake-selector"
+              onClick={() => changeGoalsSelectorVisible(true)}
+            >
+              Select a goal {keyRelationInfo?.goal && `( 1 goal selected})`}
+            </div>
+            {/* goal selector widget */}
+            {goalsSelectorVisible && (
+              <>
+                <div className="mellon-select-goal-container">
+                  {/* list */}
+                  <ul>
+                    {mellonUserGoals.length >= 1 ? (
+                      <>
+                        {mellonUserGoals.map((elm, idx) => {
+                          return (
+                            <>
+                              <li key={idx}>
+                                <input
+                                  type="radio"
+                                  className="radio mellon-radio"
+                                  id={elm.id}
+                                  onChange={(e) => {
+                                    Array.from(
+                                      e.target.parentElement.parentElement
+                                        .children
+                                    ).forEach((elment) => {
+                                      let inp = elment.querySelector("input");
+                                      if (inp) inp.checked = false;
+                                    });
+                                    e.target.checked = true;
+                                    // set this as the goal
+                                    setKeyRelationInfo({
+                                      ...keyRelationInfo,
+                                      goal: elm.id,
+                                    });
+                                  }}
+                                />
+                                <p className="mellon-labels">{elm.name}</p>
+                              </li>
+                            </>
+                          );
+                        })}
+
+                        <button
+                          className="mellon-button"
+                          onClick={async () => {
+                            // close view
+                            changeGoalsSelectorVisible(false);
+                          }}
+                        >
+                          Select
+                        </button>
+                      </>
+                    ) : (
+                      <p className="mellon-no-goal">No goal yet...</p>
+                    )}
+                  </ul>
+
+                  {/* done btn */}
+                </div>
+                <div
+                  className="mellon-select-goal-container-back"
+                  onClick={() => changeGoalsSelectorVisible(false)}
+                ></div>
+              </>
+            )}
           </div>
         </div>
         <div className="mellon-form-group">
