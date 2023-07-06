@@ -585,26 +585,28 @@ const scrapMutualUsers = async () => {
         document.querySelector("ul.reusable-search__entity-result-list")
           .children
       ).forEach((elm) => {
-        dataFound.push({
-          profileUrl: elm.querySelector("a.app-aware-link")?.href,
-          image: elm.querySelector("a img.presence-entity__image")?.src,
-          name: elm
-            .querySelector(
-              ".entity-result__content.entity-result__divider a span"
-            )
-            ?.innerText.trim()
-            .split("\n")[0],
-          role: elm
-            .querySelector(
-              ".entity-result__content.entity-result__divider .linked-area .entity-result__primary-subtitle"
-            )
-            ?.innerText.trim(),
-          location: elm
-            .querySelector(
-              ".entity-result__content.entity-result__divider .linked-area .entity-result__secondary-subtitle"
-            )
-            ?.innerText.trim(),
-        });
+        if (elm.className === "reusable-search__result-container") {
+          dataFound.push({
+            profileUrl: elm.querySelector("a.app-aware-link")?.href,
+            image: elm.querySelector("a img.presence-entity__image")?.src,
+            name: elm
+              .querySelector(
+                ".entity-result__content.entity-result__divider a span"
+              )
+              ?.innerText.trim()
+              .split("\n")[0],
+            role: elm
+              .querySelector(
+                ".entity-result__content.entity-result__divider .linked-area .entity-result__primary-subtitle"
+              )
+              ?.innerText.trim(),
+            location: elm
+              .querySelector(
+                ".entity-result__content.entity-result__divider .linked-area .entity-result__secondary-subtitle"
+              )
+              ?.innerText.trim(),
+          });
+        }
       });
 
       // add data to db

@@ -568,73 +568,44 @@ const AddPotentialIntro = () => {
           <label htmlFor="mellon-goals">Goals</label>
 
           <div className="mellon-select-container">
-            <div
-              className="mellon-select mellon-fake-selector"
-              onClick={() => changeGoalsSelectorVisible(true)}
-            >
-              Select a goal {keyRelationInfo?.goal && `( 1 goal selected})`}
-            </div>
-            {/* goal selector widget */}
-            {goalsSelectorVisible && (
-              <>
-                <div className="mellon-select-goal-container">
-                  {/* list */}
-                  <ul>
-                    {mellonUserGoals.length >= 1 ? (
+            <ul>
+              {mellonUserGoals.length >= 1 ? (
+                <>
+                  {mellonUserGoals.map((elm, idx) => {
+                    return (
                       <>
-                        {mellonUserGoals.map((elm, idx) => {
-                          return (
-                            <>
-                              <li key={idx}>
-                                <input
-                                  type="radio"
-                                  className="radio mellon-radio"
-                                  id={elm.id}
-                                  onChange={(e) => {
-                                    Array.from(
-                                      e.target.parentElement.parentElement
-                                        .children
-                                    ).forEach((elment) => {
-                                      let inp = elment.querySelector("input");
-                                      if (inp) inp.checked = false;
-                                    });
-                                    e.target.checked = true;
-                                    // set this as the goal
-                                    setKeyRelationInfo({
-                                      ...keyRelationInfo,
-                                      goal: elm.id,
-                                    });
-                                  }}
-                                />
-                                <p className="mellon-labels">{elm.name}</p>
-                              </li>
-                            </>
-                          );
-                        })}
-
-                        <button
-                          className="mellon-button"
-                          onClick={async () => {
-                            // close view
-                            changeGoalsSelectorVisible(false);
-                          }}
-                        >
-                          Close
-                        </button>
+                        <li key={idx} className="mellon-goal-li">
+                          <input
+                            type="radio"
+                            className="radio mellon-radio"
+                            id={elm.id}
+                            onChange={(e) => {
+                              Array.from(
+                                e.target.parentElement.parentElement.children
+                              ).forEach((elment) => {
+                                let inp = elment.querySelector("input");
+                                if (inp) inp.checked = false;
+                              });
+                              e.target.checked = true;
+                              // set this as the goal
+                              setKeyRelationInfo({
+                                ...keyRelationInfo,
+                                goal: elm.id,
+                              });
+                            }}
+                          />
+                          <p className="mellon-labels mellon-on-potential-p">
+                            {elm.name}
+                          </p>
+                        </li>
                       </>
-                    ) : (
-                      <p className="mellon-no-goal">No goal yet...</p>
-                    )}
-                  </ul>
-
-                  {/* done btn */}
-                </div>
-                <div
-                  className="mellon-select-goal-container-back"
-                  onClick={() => changeGoalsSelectorVisible(false)}
-                ></div>
-              </>
-            )}
+                    );
+                  })}
+                </>
+              ) : (
+                <p className="mellon-no-goal">No goal yet...</p>
+              )}
+            </ul>
           </div>
         </div>
         <div className="mellon-form-group">
