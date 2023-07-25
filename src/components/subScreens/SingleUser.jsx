@@ -396,10 +396,12 @@ const SingleUser = () => {
   // function returning the number of circles for the strenth
   const mellonDynamicCircles = (mellonKeyData) => {
     if (
-      mellonKeyData?.["Relationship Strength"] === "Low" ||
       !mellonKeyData?.["Relationship Strength"] ||
       mellonKeyData?.["Relationship Strength"] === "N/A"
     ) {
+      return 0;
+    }
+    if (mellonKeyData?.["Relationship Strength"] === "Low") {
       return 1;
     }
     if (mellonKeyData?.["Relationship Strength"] === "Medium") {
@@ -411,10 +413,12 @@ const SingleUser = () => {
   };
   const mellonDynamicCirclesPotential = (mellonPotentialData) => {
     if (
-      mellonPotentialData?.Priority === "Low" ||
       !mellonPotentialData?.Priority ||
       mellonPotentialData?.Priority === "N/A"
     ) {
+      return 0;
+    }
+    if (mellonPotentialData?.Priority === "Low") {
       return 1;
     }
     if (mellonPotentialData?.Priority === "Medium") {
@@ -1087,9 +1091,13 @@ const SingleUser = () => {
                                 ? chrome.runtime.getURL(
                                     "/assets/circle-yellow.svg"
                                   )
-                                : chrome.runtime.getURL(
+                                : mellonDynamicCircles(mellonKeyData) === 1
+                                ? chrome.runtime.getURL(
                                     "/assets/circle-red.svg"
                                   )
+                                : mellonDynamicCircles(mellonKeyData) <= 0
+                                ? chrome.runtime.getURL("/assets/circle.svg")
+                                : chrome.runtime.getURL("/assets/circle.svg")
                             }
                           />
                         );
@@ -1190,9 +1198,17 @@ const SingleUser = () => {
                                   ? chrome.runtime.getURL(
                                       "/assets/circle-yellow.svg"
                                     )
-                                  : chrome.runtime.getURL(
+                                  : mellonDynamicCirclesPotential(
+                                      mellonPotentialData
+                                    ) === 1
+                                  ? chrome.runtime.getURL(
                                       "/assets/circle-red.svg"
                                     )
+                                  : mellonDynamicCirclesPotential(
+                                      mellonPotentialData
+                                    ) <= 0
+                                  ? chrome.runtime.getURL("/assets/circle.svg")
+                                  : chrome.runtime.getURL("/assets/circle.svg")
                               }
                             />
                           );
