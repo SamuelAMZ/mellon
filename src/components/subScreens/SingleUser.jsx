@@ -20,7 +20,11 @@ import GoalsSelectorVisibleContext from "../../contexts/GoalSelectorVisible";
 // icons
 import { IoIosArrowBack } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
-import { AiOutlineEye, AiOutlineArrowRight } from "react-icons/ai";
+import {
+  AiOutlineEye,
+  AiOutlineArrowRight,
+  AiTwotoneStar,
+} from "react-icons/ai";
 
 const SingleUser = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
@@ -726,9 +730,11 @@ const SingleUser = () => {
     });
   };
   useEffect(() => {
-    if (mellonKeyData) {
-      setOriginalNoteText(mellonKeyData?.Notes);
-    }
+    // if (mellonKeyData && mellonKeyData?.Notes) {
+    //   setOriginalNoteText(mellonKeyData?.Notes);
+    // }
+
+    console.log(mellonKeyData);
 
     (async () => {
       await updateNotesTextarea();
@@ -985,16 +991,18 @@ const SingleUser = () => {
               !mellonKeyData?._id &&
               !mellonPotentialData?._id && (
                 <>
-                  {isFirstDegree ? (
+                  <div className="mellon-add-new">
                     <AddNewKeyRelation refresh={getPaginate} />
-                  ) : (
+
+                    <span>OR</span>
+
                     <button
                       className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
                       onClick={addPotentialIntroView}
                     >
                       + Add Potential Intro
                     </button>
-                  )}
+                  </div>
 
                   {/* <div className="mellon-ext-sep mellon-user-section"></div> */}
                 </>
@@ -1123,14 +1131,19 @@ const SingleUser = () => {
                 <div className="mellon-body-detial-item">
                   <p>Potential Intros</p>
                   <div className="mellon-ext-details-circles">
-                    <img
-                      src={chrome.runtime.getURL("/assets/users-active.svg")}
-                      alt="user"
-                    />
-                    <a onClick={() => setShowKeyPotentials(true)}>
-                      {mellonKeyData?.["Potential Intros"]?.length
-                        ? mellonKeyData?.["Potential Intros"]?.length
-                        : "0"}
+                    <a
+                      className="mellon-user-scraped-container"
+                      onClick={() => setShowKeyPotentials(true)}
+                    >
+                      {mellonKeyData?.["Potential Intros"] &&
+                      mellonKeyData?.["Potential Intros"]?.length !== 0 ? (
+                        <div className="mellon-user-users-scraped">
+                          <AiTwotoneStar />
+                          {mellonKeyData?.["Potential Intros"]?.length}
+                        </div>
+                      ) : (
+                        "+ Add"
+                      )}
                     </a>
                   </div>
                 </div>
@@ -1238,11 +1251,22 @@ const SingleUser = () => {
                   <div className="mellon-body-detial-item">
                     <p>Key Mutual Connections</p>
                     <div className="mellon-ext-details-circles">
-                      <img
-                        src={chrome.runtime.getURL("/assets/users-active.svg")}
-                        alt="user"
-                      />
-                      <p>
+                      <a
+                        className="mellon-user-scraped-container"
+                        onClick={() => setShowKeyMutuals(true)}
+                      >
+                        {mellonPotentialData["Mutual Connections"] &&
+                        mellonPotentialData["Mutual Connections"]?.length !==
+                          0 ? (
+                          <div className="mellon-user-users-scraped">
+                            <AiTwotoneStar />
+                            {mellonPotentialData["Mutual Connections"]?.length}
+                          </div>
+                        ) : (
+                          "+ Add"
+                        )}
+                      </a>
+                      {/* <p>
                         {mellonZeroOrMore &&
                           mellonPotentialData["Mutual Connections"] && (
                             <a onClick={() => setShowKeyMutuals(true)}>
@@ -1260,7 +1284,7 @@ const SingleUser = () => {
                             </a>
                           )}
                         {!mellonZeroOrMore && <p>0</p>}
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                   <div class="mellon-body-detial-item mellon-user-note">
