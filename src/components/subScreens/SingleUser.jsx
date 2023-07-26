@@ -529,6 +529,8 @@ const SingleUser = () => {
 
     await delay(200);
 
+    console.log(keyOrPotential);
+
     // redirect to mutual url
     if (keyOrPotential === "potential") {
       chrome.runtime.sendMessage({
@@ -1385,7 +1387,7 @@ const SingleUser = () => {
 
             {/* add more widget */}
             <AddMutualConnection
-              scrap={() => setAndRedirectMutualPage}
+              scrap={() => setAndRedirectMutualPage("key")}
               type={"potential"}
             />
           </div>
@@ -1448,7 +1450,7 @@ const SingleUser = () => {
 
             {/* add more widget */}
             <AddMutualConnection
-              scrap={() => setAndRedirectMutualPage}
+              scrap={() => setAndRedirectMutualPage("potential")}
               type={"key"}
             />
           </div>

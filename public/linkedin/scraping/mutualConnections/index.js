@@ -585,7 +585,10 @@ const scrapMutualUsers = async () => {
         document.querySelector("ul.reusable-search__entity-result-list")
           .children
       ).forEach((elm) => {
-        if (elm.className === "reusable-search__result-container") {
+        if (
+          elm.className.includes("reusable-search__result-container") &&
+          elm.querySelector(".entity-result")
+        ) {
           dataFound.push({
             profileUrl: elm.querySelector("a.app-aware-link")?.href,
             image: elm.querySelector("a img.presence-entity__image")?.src,

@@ -184,6 +184,7 @@ const scrapMutualUsers = async () => {
     mellonAppLinkedinBody.appendChild(mellonAlertBox);
   };
   mellonCreateBox();
+  console.log("box");
 
   // scroll to the top and then to the bottom
   window.scroll(0, 0);
@@ -204,6 +205,7 @@ const scrapMutualUsers = async () => {
     });
   };
   autoScroll();
+  console.log("scroll");
 
   //  get pagination number
   const getNumberOfPage = () => {
@@ -232,10 +234,12 @@ const scrapMutualUsers = async () => {
   };
 
   const paginateAndGetPeople = async (pagesNum) => {
+    console.log("enter1", pagesNum);
     for (let index = 0; index < pagesNum; index++) {
       // scroll top then to bottom
       window.scroll(0, 0);
       autoScroll();
+      console.log("scroll up");
 
       // grad people
       let dataFound = [];
@@ -244,7 +248,10 @@ const scrapMutualUsers = async () => {
         document.querySelector("ul.reusable-search__entity-result-list")
           .children
       ).forEach((elm) => {
-        if (elm.className.contains("reusable-search__result-container")) {
+        if (
+          elm.className.includes("reusable-search__result-container") &&
+          elm.querySelector(".entity-result")
+        ) {
           dataFound.push({
             profileUrl: elm.querySelector("a.app-aware-link")?.href,
             image: elm.querySelector("a img.presence-entity__image")?.src,
@@ -267,6 +274,8 @@ const scrapMutualUsers = async () => {
           });
         }
       });
+
+      console.log(dataFound, "here found");
 
       // add data to db
       for (let y = 0; y < dataFound.length; y++) {
@@ -306,7 +315,9 @@ const scrapMutualUsers = async () => {
   await delay(2000);
 
   const numberOfPage = getNumberOfPage();
+  console.log("number of page");
   await paginateAndGetPeople(numberOfPage);
+  console.log("people");
 
   // once done close the page
   chrome.runtime.sendMessage({ from: "closeMutualsTab" });

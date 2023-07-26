@@ -8,7 +8,7 @@ const AddMutualConnection = ({ scrap, type }) => {
     <div className="mellon-add-mutual-connection-widget-wraper">
       <button
         className="mellon-ext-btn btn btn-primary w-full mellon-fallback-btn"
-        onClick={scrap(type)}
+        onClick={() => scrap()}
       >
         + Scrape Mutual Connections
       </button>
