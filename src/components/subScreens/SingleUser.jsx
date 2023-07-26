@@ -5,6 +5,8 @@ import Loading from "./Loading";
 import Nothing from "./Nothing";
 import GoalSelector from "./GoalSelector";
 import AddNewKeyRelation from "./AddNewKeyRelation";
+import AddMutualConnection from "./AddMutualConnection";
+import AddMutualManually from "./AddMutualManually";
 
 // react query
 import { useQuery } from "react-query";
@@ -16,6 +18,7 @@ import removeExtraStrings from "../../helpers/removeExtra";
 // contexts
 import VisibleScrensContext from "../../contexts/visibleScreens";
 import GoalsSelectorVisibleContext from "../../contexts/GoalSelectorVisible";
+import AddManuallyContext from "../../contexts/AddManually";
 
 // icons
 import { IoIosArrowBack } from "react-icons/io";
@@ -28,6 +31,7 @@ import {
 
 const SingleUser = () => {
   const { screen, changeScreen } = useContext(VisibleScrensContext);
+  const { addManually, changeAddManually } = useContext(AddManuallyContext);
 
   const [userDetails, setUserDetails] = useState(null);
   const [isFirstDegree, setIsFirstDegree] = useState(false);
@@ -50,8 +54,11 @@ const SingleUser = () => {
   const [keyPotentialsIntros, setKeyPotentialsIntros] = useState([]);
   const [showKeyPotentials, setShowKeyPotentials] = useState(false);
 
+  // add mutual connection manually view
+  const [showManuallyAdded, setManuallyAdded] = useState(false);
+
   // notes state
-  const [originalNoteText, setOriginalNoteText] = useState("");
+  const [originalNoteText, setOriginalNoteText] = useState("...");
   const [originalNoteTextPotential, setOriginalNoteTextPotential] =
     useState("");
 
@@ -308,6 +315,16 @@ const SingleUser = () => {
     }
     if (showKeyPotentials) {
       return setShowKeyPotentials(false);
+    }
+    if (addManually.active && addManually.previousView === "key") {
+      changeAddManually(false);
+      setShowKeyMutuals(true);
+      return;
+    }
+    if (addManually.active && addManually.previousView === "potential") {
+      changeAddManually(false);
+      setShowKeyPotentials(true);
+      return;
     }
 
     changeScreen({
@@ -705,7 +722,7 @@ const SingleUser = () => {
       let originalNotes = mellonKeyData?.Notes;
       let actualNotes = document.querySelector("#mellon-notes-field")?.value;
 
-      if (actualNotes === "undefined") return;
+      if (!actualNotes || typeof actualNotes === undefined) return;
 
       if (originalNotes?.trim() === actualNotes?.trim()) return;
 
@@ -730,11 +747,9 @@ const SingleUser = () => {
     });
   };
   useEffect(() => {
-    // if (mellonKeyData && mellonKeyData?.Notes) {
-    //   setOriginalNoteText(mellonKeyData?.Notes);
-    // }
-
-    console.log(mellonKeyData);
+    if (mellonKeyData) {
+      setOriginalNoteText(mellonKeyData?.Notes);
+    }
 
     (async () => {
       await updateNotesTextarea();
@@ -908,6 +923,16 @@ const SingleUser = () => {
     })();
   }, [mellonKeyData, mellonPotentialData]);
 
+  // kepp check if the add mutuals manually view get to active to set other views to false
+  useEffect(() => {
+    if (addManually.active && addManually.previousView === "potential") {
+      setShowKeyPotentials(false);
+    }
+    if (addManually.active && addManually.previousView === "key") {
+      setShowKeyMutuals(false);
+    }
+  }, [addManually.active]);
+
   return (
     <>
       <div className="mellon-ext-user-details">
@@ -922,10 +947,10 @@ const SingleUser = () => {
             {userDetails &&
               removeExtraStrings(userDetails?.fullName?.length >= 30 && "...")}
           </h2>
-          <h3>
+          {/* <h3>
             {userDetails && userDetails?.actualRole?.substr(0, 28)}
             {userDetails && userDetails?.actualRole?.length >= 28 && "..."}
-          </h3>
+          </h3> */}
         </div>
 
         {/* when it s key relation */}
@@ -1012,7 +1037,7 @@ const SingleUser = () => {
       </div>
 
       {/* (normal) view withour key relations */}
-      {!showKeyPotentials && !showKeyMutuals && (
+      {!showKeyPotentials && !showKeyMutuals && !addManually.active && (
         <div className="mellon-ext-user-details-body">
           <>
             {(mellonKeyLoading || mellonPotentialLoading) && <Loading />}
@@ -1081,7 +1106,7 @@ const SingleUser = () => {
                 </div>
                 <div className="mellon-body-detial-item">
                   <p>Relationship Quality</p>
-                  <div className="mellon-ext-details-circles mellon-ext-details-circles-circles">
+                  <div className="mellon-ext-details-circles mellon-ext-details-circles-circles mellon-relation-quality">
                     {new Array(mellonDynamicCircles(mellonKeyData))
                       .fill("")
                       .map((elm, idx) => {
@@ -1308,7 +1333,7 @@ const SingleUser = () => {
       )}
 
       {/* view with potential intro of key */}
-      {showKeyPotentials && !showKeyMutuals && (
+      {showKeyPotentials && !showKeyMutuals && !addManually.active && (
         <>
           <div className="mellon-key-mutuals">
             {/* big title */}
@@ -1357,12 +1382,18 @@ const SingleUser = () => {
             {keyPotentialsIntros && keyPotentialsIntros.length === 0 && (
               <Nothing />
             )}
+
+            {/* add more widget */}
+            <AddMutualConnection
+              scrap={() => setAndRedirectMutualPage}
+              type={"potential"}
+            />
           </div>
         </>
       )}
 
       {/* view with key relations */}
-      {!showKeyPotentials && showKeyMutuals && (
+      {!showKeyPotentials && showKeyMutuals && !addManually.active && (
         <>
           <div className="mellon-key-mutuals">
             {/* big title */}
@@ -1414,11 +1445,26 @@ const SingleUser = () => {
 
             {/* loading for search */}
             {keyRelationsLoading && <Loading />}
+
+            {/* add more widget */}
+            <AddMutualConnection
+              scrap={() => setAndRedirectMutualPage}
+              type={"key"}
+            />
           </div>
         </>
+      )}
+
+      {/* view add mutual manually */}
+      {addManually.active && !showKeyPotentials && !showKeyMutuals && (
+        <AddMutualManually
+          keyPotentialsIntros={keyPotentialsIntros}
+          keyMutualConnections={keyMutualConnections}
+          currentUserKey={mellonKeyData}
+          currentUserPotential={mellonPotentialData}
+        />
       )}
     </>
   );
 };
-
 export default SingleUser;
