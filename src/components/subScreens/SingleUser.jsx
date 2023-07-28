@@ -9,7 +9,7 @@ import AddMutualConnection from "./AddMutualConnection";
 import AddMutualManually from "./AddMutualManually";
 
 // react query
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 
 // helpers
 import postReq from "../../helpers/postReq";

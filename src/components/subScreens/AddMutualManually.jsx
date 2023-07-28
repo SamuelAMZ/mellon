@@ -1,4 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
+
+// react query
+import { useQueryClient } from "react-query";
+
+// context
 import AddManuallyContext from "../../contexts/AddManually";
 
 const AddMutualManually = ({
@@ -7,6 +12,10 @@ const AddMutualManually = ({
   currentUserKey,
   currentUserPotential,
 }) => {
+  // react query
+  const queryClient = useQueryClient();
+
+  // context
   const { addManually, changeAddManually } = useContext(AddManuallyContext);
 
   // states
@@ -213,6 +222,10 @@ const AddMutualManually = ({
       console.log(error);
       setAddingNew(false);
     }
+
+    // refresh user page
+    queryClient.refetchQueries("potential-list");
+    queryClient.refetchQueries("key-list");
 
     changeAddManually({
       active: false,
