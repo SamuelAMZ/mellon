@@ -1157,7 +1157,7 @@ const SingleUser = () => {
                 </div>
                 <div className="mellon-body-detial-item">
                   <p>Potential Intros</p>
-                  <div className="mellon-ext-details-circles">
+                  {/* <div className="mellon-ext-details-circles">
                     <a
                       className="mellon-user-scraped-container"
                       onClick={() => setShowKeyPotentials(true)}
@@ -1171,6 +1171,17 @@ const SingleUser = () => {
                       ) : (
                         "+ Add"
                       )}
+                    </a>
+                  </div> */}
+                  <div className="mellon-ext-details-circles">
+                    <img
+                      src={chrome.runtime.getURL("/assets/users-active.svg")}
+                      alt="user"
+                    />
+                    <a onClick={() => setShowKeyPotentials(true)}>
+                      {mellonKeyData?.["Potential Intros"]?.length
+                        ? mellonKeyData?.["Potential Intros"]?.length
+                        : "0"}
                     </a>
                   </div>
                 </div>
@@ -1386,10 +1397,10 @@ const SingleUser = () => {
             )}
 
             {/* add more widget */}
-            <AddMutualConnection
+            {/* <AddMutualConnection
               scrap={() => setAndRedirectMutualPage("key")}
               type={"potential"}
-            />
+            /> */}
           </div>
         </>
       )}
