@@ -180,7 +180,7 @@ const AddMutualManually = ({
     urlencoded.append("mutual_connection_full_name", selectedUser["Full Name"]);
     urlencoded.append(
       "mutual_connection_linkedin_url",
-      selectedUser["Linkedin URL"]
+      selectedUser["Linkedin URL"] ? selectedUser["Linkedin URL"] : ""
     );
 
     var requestOptions = {
