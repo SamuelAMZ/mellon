@@ -330,18 +330,10 @@ const AddNewKeyRelation = ({ refresh }) => {
       urlencoded.append("is First Degree", "true");
       urlencoded.append("Linkedin URL", linkedinUrl);
       urlencoded.append("Profile Photo", mellonUserDetails.profilePhoto);
-      // urlencoded.append(
-      //   "Relationship Strength",
-      //   updateRecord.data ? updateRecord?.data["Relationship Strength"] : "Low"
-      // );
       urlencoded.append(
         "Full Name",
         removeExtraStrings(mellonUserDetails.fullName)
       );
-      // urlencoded.append(
-      //   "Notes",
-      //   keyRelationInfo.notes ? keyRelationInfo.notes : "..."
-      // );
       urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
       var requestOptions = {
@@ -356,35 +348,6 @@ const AddNewKeyRelation = ({ refresh }) => {
       if (response.status >= 200 && response.status < 400) {
         // refresh
         await refresh();
-        // if (!keyRelationInfo.goal || keyRelationInfo.goal.length <= 0) {
-        //   setAddingNewKey(false);
-        //   // refresh
-        //   return;
-        // }
-        // let conId = "";
-        // for (let x = 0; x < keyRelationInfo.goal.length; x++) {
-        //   if (!conId && updateRecord.method === "POST") {
-        //     conId = await response.json();
-        //     conId = conId.id;
-        //   }
-        //   if (!conId && updateRecord.method === "PATCH") {
-        //     conId = updateRecord.id;
-        //   }
-        //   try {
-        //     await updateGoalsDataType(
-        //       keyRelationInfo.goal[x],
-        //       conId,
-        //       keyRelationInfo.relationshipStrength
-        //     );
-        //   } catch (error) {
-        //     console.log(error);
-        //   }
-        // }
-        // // closing the add new screen
-        // setAddingNewKey(false);
-        // // redirect to the user page
-        // backToSingleUser();
-        // return;
       }
 
       if (result.status !== "success") {

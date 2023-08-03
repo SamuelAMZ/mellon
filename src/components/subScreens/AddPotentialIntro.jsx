@@ -194,7 +194,7 @@ const AddPotentialIntro = () => {
     if (!keyRelationInfo.notes) {
       setKeyRelationInfo({
         ...keyRelationInfo,
-        notes: "...",
+        notes: "",
       });
     }
 
@@ -310,7 +310,7 @@ const AddPotentialIntro = () => {
       );
       urlencoded.append(
         "Notes",
-        keyRelationInfo.notes ? keyRelationInfo.notes : "..."
+        keyRelationInfo.notes ? keyRelationInfo.notes : ""
       );
       urlencoded.append("Linkedin Description", mellonUserDetails.actualRole);
 
