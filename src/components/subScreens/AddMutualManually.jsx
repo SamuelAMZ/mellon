@@ -26,6 +26,7 @@ const AddMutualManually = ({
     keyPotentialsIntros.length > 0 ? keyPotentialsIntros : keyMutualConnections
   );
   const [showSaveBtn, setShowSaveBtn] = useState(false);
+  const [searchableAllKeys, setSearchableAllKeys] = useState([]);
 
   // selected user
   const [selectedUser, setSelectedUser] = useState(null);
@@ -60,15 +61,6 @@ const AddMutualManually = ({
   }
 
   // search
-  // Debounce function to delay the search request
-  const debounceSearch = (func, delay) => {
-    let timer;
-    return function (...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
-  };
-
   // filter results
   const returnUniqueKeys = (allKeys, alreadyKeys) => {
     const filterByExclusion = (allKeys, alreadyKeys) => {
@@ -79,14 +71,22 @@ const AddMutualManually = ({
 
     // Usage
     const filteredArray = filterByExclusion(allKeys, alreadyKeys);
-    return filteredArray.length > 0
-      ? filteredArray
-      : [
-          {
-            _id: 1,
-            "Full Name": "Nothing found",
-          },
-        ];
+    return filteredArray;
+  };
+
+  const fetchAllFirstDegrees = async () => {
+    await delay(300);
+    try {
+      const response = await fetch(
+        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[{ "key": "Is Key Relationship", "constraint_type": "equals", "value": "True" }, { "key": "Created By", "constraint_type": "equals", "value": "${userLinked}" } ]`
+      );
+      const data = await response.json();
+      let result = returnUniqueKeys(data?.response?.results, existingMutuals);
+      setSearchableAllKeys(result);
+    } catch (error) {
+      // Only handle the error if the request was not aborted intentionally
+      console.error("Error fetching all keys", error);
+    }
   };
 
   // Search function using fetch and async/await
@@ -96,30 +96,30 @@ const AddMutualManually = ({
     // reset selected user
     setSelectedUser(null);
 
-    try {
-      const response = await fetch(
-        `https://buckfifty.com/version-test/api/1.1/obj/connection?constraints=[{ "key": "Full Name", "constraint_type": "text contains", "value": "${encodeURIComponent(
-          term
-        )}" }, { "key": "Is Key Relationship", "constraint_type": "equals", "value": "True" }, { "key": "Created By", "constraint_type": "equals", "value": "${userLinked}" } ]`
-      );
-      const data = await response.json();
-      let result = returnUniqueKeys(data?.response?.results, existingMutuals);
-      setSearchResults(result);
-      setIsLoading(false);
-    } catch (error) {
-      // Only handle the error if the request was not aborted intentionally
-      console.error("Error fetching search results:", error);
-      setIsLoading(false);
-    }
+    // filtering
+    const filteredNames = searchableAllKeys.filter((name) =>
+      name["Full Name"]?.toLowerCase().includes(term.toLowerCase())
+    );
+
+    // set result
+    setSearchResults(
+      filteredNames.length > 0
+        ? filteredNames
+        : [
+            {
+              _id: 1,
+              "Full Name": "Nothing found",
+            },
+          ]
+    );
+
+    setIsLoading(false);
   };
 
-  // Debounce the search function to avoid triggering on every keystroke
-  const debouncedSearch = debounceSearch(performSearch, 500); // Adjust the delay (in milliseconds) as per your preference
-
-  const handleInputChange = (event) => {
+  const handleInputChange = async (event) => {
     const { value } = event.target;
     setSearchTerm(value);
-    debouncedSearch(value);
+    await performSearch(searchTerm);
   };
 
   // select user
@@ -154,6 +154,12 @@ const AddMutualManually = ({
   };
 
   useEffect(() => {
+    (async () => {
+      await fetchAllFirstDegrees();
+    })();
+  }, []);
+
+  useEffect(() => {
     getUserId();
   }, [currentUserKey, currentUserPotential]);
 
@@ -163,37 +169,11 @@ const AddMutualManually = ({
     setAddingNew(true);
     await delay(200);
 
-    // get fetch url
-    // let fetchUrl = "";
-    // if (addManually && addManually?.previousView === "potential") {
-    //   fetchUrl = `https://buckfifty.com/version-test/api/1.1/obj/connection/${currentUserId}`;
-    // }
-    // if (addManually && addManually?.previousView === "key") {
-    //   fetchUrl = `https://buckfifty.com/version-test/api/1.1/obj/potentialIntro/${currentUserId}`;
-    // }
-    // get all current mutuals in an array
-    // let allMutuals = [];
-    // if (existingMutuals && existingMutuals.length > 0) {
-    //   existingMutuals?.forEach((elm) => {
-    //     allMutuals.push(elm?._id);
-    //   });
-    // }
-
-    // add the new one
-    // allMutuals = [...allMutuals, selectedUser._id];
-
     // headers
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
     myHeaders.append("Authorization", "Bearer " + userToken);
     let urlencoded = new URLSearchParams();
-
-    // if (addManually?.previousView === "potential") {
-    //   urlencoded.append("Potential Intros", JSON.stringify(allMutuals));
-    // }
-    // if (addManually?.previousView === "key") {
-    //   urlencoded.append("Mutual Connections", JSON.stringify(allMutuals));
-    // }
 
     urlencoded.append("potential_intro", currentUser.id);
     urlencoded.append("goal", currentUser.goal);
@@ -262,7 +242,15 @@ const AddMutualManually = ({
               searchResults.length > 0 &&
               searchResults?.map((elm) => {
                 return (
-                  <li key={elm?._id} onClick={() => selectUser(elm)}>
+                  <li
+                    key={elm?._id}
+                    onClick={() => {
+                      // return if elm === nothing found
+                      if (elm?._id === 1) return;
+                      // else select elm
+                      selectUser(elm);
+                    }}
+                  >
                     {elm["Full Name"]}
                   </li>
                 );
